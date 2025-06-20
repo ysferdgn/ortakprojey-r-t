@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FaUser, FaEnvelope, FaPhone, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaEdit, FaSave, FaTimes, FaArrowLeft } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import axios from '../utils/axios';
 
 const Profile = () => {
@@ -15,6 +16,7 @@ const Profile = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();
@@ -90,6 +92,14 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 mb-6 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+          title="Geri Dön"
+        >
+          <FaArrowLeft className="text-lg" />
+          Geri
+        </button>
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">

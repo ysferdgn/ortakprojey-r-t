@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaPaw, FaDog, FaCat, FaDove } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { FaPlus, FaEdit, FaTrash, FaPaw, FaDog, FaCat, FaDove, FaArrowLeft } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from '../utils/axios';
 
 const MyListings = () => {
@@ -9,6 +9,7 @@ const MyListings = () => {
   const [error, setError] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedListing, setSelectedListing] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchListings();
@@ -72,6 +73,14 @@ const MyListings = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 mb-6 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+          title="Geri Dön"
+        >
+          <FaArrowLeft className="text-lg" />
+          Geri
+        </button>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">My Pet Listings</h1>
           <Link

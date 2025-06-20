@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { FaSearch, FaFilter, FaPaw, FaDog, FaCat, FaDove } from 'react-icons/fa';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { FaSearch, FaFilter, FaPaw, FaDog, FaCat, FaDove, FaHome } from 'react-icons/fa';
 import axios from '../utils/axios';
 
 const useQuery = () => new URLSearchParams(useLocation().search);
@@ -8,6 +8,7 @@ const useQuery = () => new URLSearchParams(useLocation().search);
 const Search = () => {
   const query = useQuery();
   const location = useLocation();
+  const navigate = useNavigate();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
@@ -42,8 +43,7 @@ const Search = () => {
     } else {
       params.delete(name);
     }
-    window.history.replaceState({}, '', `${location.pathname}?${params.toString()}`);
-    // URL değişince useEffect tetiklenir
+    navigate(`${location.pathname}?${params.toString()}`);
   };
 
   const handleSearchSubmit = (e) => {
@@ -55,7 +55,7 @@ const Search = () => {
     } else {
       params.delete('search');
     }
-    window.history.replaceState({}, '', `${location.pathname}?${params.toString()}`);
+    navigate(`${location.pathname}?${params.toString()}`);
   };
 
   const getPetIcon = (type) => {
@@ -71,9 +71,18 @@ const Search = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Search Header */}
       <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Find Your Perfect Pet</h1>
-          <p className="mt-2 text-gray-600">Search through our database of pets available for adoption</p>
+        <div className="max-w-7xl mx-auto px-4 py-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Find Your Perfect Pet</h1>
+            <p className="mt-2 text-gray-600">Search through our database of pets available for adoption</p>
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 px-4 py-2 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C] transition-colors text-lg font-medium"
+            title="Ana Menüye Dön"
+          >
+            <FaHome className="text-2xl" />
+          </button>
         </div>
       </div>
 

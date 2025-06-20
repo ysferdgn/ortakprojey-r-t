@@ -13,7 +13,7 @@ const path = require('path');
 router.get('/recent', async (req, res) => {
   try {
     const pets = await Pet.find()
-      .populate('owner', 'name email')
+      .populate('owner', 'name email phone')
       .sort({ createdAt: -1 })
       .limit(8);
     res.json(pets);
@@ -32,7 +32,7 @@ router.get('/featured', async (req, res) => {
     // Populate owner information
     const populatedPets = await Pet.populate(pets, {
       path: 'owner',
-      select: 'name email'
+      select: 'name email phone'
     });
     
     res.json(populatedPets);
@@ -46,7 +46,7 @@ router.get('/my-listings', auth, async (req, res) => {
   try {
     console.log('Fetching my-listings for user:', req.user._id);
     const pets = await Pet.find({ owner: req.user._id })
-      .populate('owner', 'name email')
+      .populate('owner', 'name email phone')
       .sort({ createdAt: -1 });
     console.log('Found pets:', pets.length);
     res.json(pets);
@@ -81,7 +81,7 @@ router.get('/search', async (req, res) => {
     }
 
     const pets = await Pet.find(filter)
-      .populate('owner', 'name email')
+      .populate('owner', 'name email phone')
       .sort({ createdAt: -1 });
 
     res.json(pets);
@@ -101,7 +101,7 @@ router.get('/', async (req, res) => {
     if (status) filter.status = status;
 
     const pets = await Pet.find(filter)
-      .populate('owner', 'name email')
+      .populate('owner', 'name email phone')
       .sort({ createdAt: -1 });
 
     res.json(pets);
@@ -141,7 +141,7 @@ router.post('/', auth, upload.array('images', 5), async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const pet = await Pet.findById(req.params.id)
-      .populate('owner', 'name email');
+      .populate('owner', 'name email phone');
     
     if (!pet) {
       return res.status(404).json({ message: 'Pet not found' });

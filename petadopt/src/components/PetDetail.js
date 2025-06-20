@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaHeart, FaShare, FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaHeart, FaShare, FaPhone, FaEnvelope, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
 import axios from '../utils/axios';
 
 const PetDetail = () => {
@@ -53,6 +53,15 @@ const PetDetail = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 mb-6 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+        title="Geri Dön"
+      >
+        <FaArrowLeft className="text-lg" />
+        Geri
+      </button>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pet Images */}
         <div className="space-y-4">
@@ -109,9 +118,9 @@ const PetDetail = () => {
                   <p className="text-gray-600">Size</p>
                   <p className="font-medium">{pet.size}</p>
                 </div>
-                <div>
-                  <p className="text-gray-600">Location</p>
-                  <p className="font-medium">{pet.location}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <FaMapMarkerAlt className="text-[#4CAF50]" />
+                  <span className="text-gray-600">{pet.location}</span>
                 </div>
               </div>
               <div>
@@ -132,10 +141,6 @@ const PetDetail = () => {
               <div className="flex items-center gap-3">
                 <FaEnvelope className="text-[#4CAF50]" />
                 <span>{pet.owner.email}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <FaMapMarkerAlt className="text-[#4CAF50]" />
-                <span>{pet.owner.location}</span>
               </div>
             </div>
             <button className="w-full mt-6 px-6 py-3 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C]">
