@@ -17,19 +17,44 @@ router.get('/profile', auth, async (req, res) => {
 // Update user profile
 router.put('/profile', auth, async (req, res) => {
   try {
-    const updates = Object.keys(req.body);
-    const allowedUpdates = ['username', 'email'];
-    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
+    const { name, email, phone, currentPassword, newPassword } = req.body;
 
-    if (!isValidOperation) {
-      return res.status(400).json({ message: 'Invalid updates' });
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    updates.forEach(update => req.user[update] = req.body[update]);
-    await req.user.save();
+    // Update basic info
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
 
-    res.json(req.user);
+    // Update password if requested
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: 'Current password is required to change password' });
+      }
+
+      const isMatch = await user.comparePassword(currentPassword);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Incorrect current password' });
+      }
+
+      user.password = newPassword;
+    }
+
+    const updatedUser = await user.save();
+
+    // Don't send back the password
+    updatedUser.password = undefined;
+
+    res.json(updatedUser);
   } catch (error) {
+    console.error('Profile update error:', error);
+    if (error.code === 11000) { // Handle duplicate email error
+        return res.status(400).json({ message: 'This email is already in use.' });
+    }
     res.status(500).json({ message: 'Error updating profile', error: error.message });
   }
 });

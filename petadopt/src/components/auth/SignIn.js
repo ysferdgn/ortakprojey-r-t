@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import { FaPaw } from 'react-icons/fa';
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -25,12 +26,15 @@ const SignIn = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/login', formData);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      navigate('/');
+      const { success, error } = await login(formData.email, formData.password);
+
+      if (success) {
+        navigate('/');
+      } else {
+        setError(error || 'An error occurred during sign in');
+      }
     } catch (error) {
-      setError(error.response?.data?.message || 'An error occurred during sign in');
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

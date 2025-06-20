@@ -6,11 +6,14 @@ const upload = require('../middleware/upload');
 const fs = require('fs');
 const path = require('path');
 
+// **ROUTING ORDER FIX**
+// More specific routes should come before dynamic routes like /:id
+
 // Get recent pets (last 8 pets)
 router.get('/recent', async (req, res) => {
   try {
     const pets = await Pet.find()
-      .populate('owner', 'username email')
+      .populate('owner', 'name email')
       .sort({ createdAt: -1 })
       .limit(8);
     res.json(pets);
@@ -29,7 +32,7 @@ router.get('/featured', async (req, res) => {
     // Populate owner information
     const populatedPets = await Pet.populate(pets, {
       path: 'owner',
-      select: 'username email'
+      select: 'name email'
     });
     
     res.json(populatedPets);
@@ -43,6 +46,7 @@ router.get('/my-listings', auth, async (req, res) => {
   try {
     console.log('Fetching my-listings for user:', req.user._id);
     const pets = await Pet.find({ owner: req.user._id })
+      .populate('owner', 'name email')
       .sort({ createdAt: -1 });
     console.log('Found pets:', pets.length);
     res.json(pets);
@@ -52,7 +56,41 @@ router.get('/my-listings', auth, async (req, res) => {
   }
 });
 
-// Get all pets with optional filters
+// Get all pets with optional filters (handles search)
+router.get('/search', async (req, res) => {
+  try {
+    const { type, age, size, search } = req.query;
+    const filter = {};
+
+    if (type) filter.type = type.toLowerCase();
+    if (size) filter.size = size;
+
+    if (age) {
+      if (age === 'puppy') filter.age = { $lte: 1 };
+      if (age === 'young') filter.age = { $gte: 1, $lte: 3 };
+      if (age === 'adult') filter.age = { $gte: 3, $lte: 7 };
+      if (age === 'senior') filter.age = { $gte: 7 };
+    }
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { breed: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const pets = await Pet.find(filter)
+      .populate('owner', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.json(pets);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching pets', error: error.message });
+  }
+});
+
+// Get all pets with optional filters (general listing)
 router.get('/', async (req, res) => {
   try {
     const { species, location, status } = req.query;
@@ -63,28 +101,12 @@ router.get('/', async (req, res) => {
     if (status) filter.status = status;
 
     const pets = await Pet.find(filter)
-      .populate('owner', 'username email')
+      .populate('owner', 'name email')
       .sort({ createdAt: -1 });
 
     res.json(pets);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching pets', error: error.message });
-  }
-});
-
-// Get single pet
-router.get('/:id', async (req, res) => {
-  try {
-    const pet = await Pet.findById(req.params.id)
-      .populate('owner', 'username email');
-    
-    if (!pet) {
-      return res.status(404).json({ message: 'Pet not found' });
-    }
-
-    res.json(pet);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching pet', error: error.message });
   }
 });
 
@@ -94,7 +116,6 @@ router.post('/', auth, upload.array('images', 5), async (req, res) => {
     console.log('Creating pet with data:', req.body);
     console.log('Files uploaded:', req.files);
     
-    // Cloudinary ile upload sonrası url'ler req.files içindeki .path veya .url'de olur
     const imageUrls = req.files ? req.files.map(file => file.path || file.url) : [];
     console.log('Image URLs:', imageUrls);
     
@@ -113,6 +134,22 @@ router.post('/', auth, upload.array('images', 5), async (req, res) => {
     console.error('Error creating pet:', error);
     console.error('Error stack:', error.stack);
     res.status(500).json({ message: 'Error creating pet', error: error.message });
+  }
+});
+
+// Get single pet BY ID - This MUST be after other specific GET routes
+router.get('/:id', async (req, res) => {
+  try {
+    const pet = await Pet.findById(req.params.id)
+      .populate('owner', 'name email');
+    
+    if (!pet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+
+    res.json(pet);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching pet', error: error.message });
   }
 });
 
@@ -185,21 +222,15 @@ router.delete('/:id', auth, async (req, res) => {
       }
     });
 
-    await pet.remove();
+    // This method is deprecated, using deleteOne() instead.
+    const result = await Pet.deleteOne({ _id: req.params.id });
+    if(result.deletedCount === 0){
+        return res.status(404).json({ message: 'Pet not found for deletion' });
+    }
+
     res.json({ message: 'Pet removed' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting pet', error: error.message });
-  }
-});
-
-// Get user's pets
-router.get('/user/pets', auth, async (req, res) => {
-  try {
-    const pets = await Pet.find({ owner: req.user._id })
-      .sort({ createdAt: -1 });
-    res.json(pets);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching user pets', error: error.message });
   }
 });
 

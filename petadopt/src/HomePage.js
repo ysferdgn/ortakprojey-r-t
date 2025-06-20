@@ -95,16 +95,16 @@ const HomePage = () => {
                     onMouseEnter={() => setIsPetMenuOpen(true)}
                     onMouseLeave={() => setIsPetMenuOpen(false)}
                   >
-                    <Link to="/pets/dogs" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <Link to="/search?type=dog" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                       <FaDog className="inline mr-2" /> Dogs
                     </Link>
-                    <Link to="/pets/cats" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <Link to="/search?type=cat" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                       <FaCat className="inline mr-2" /> Cats
                     </Link>
-                    <Link to="/pets/birds" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <Link to="/search?type=bird" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                       <FaDove className="inline mr-2" /> Birds
                     </Link>
-                    <Link to="/pets/other" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <Link to="/search?type=other" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                       <FaPaw className="inline mr-2" /> Other Pets
                     </Link>
                   </div>
@@ -187,21 +187,21 @@ const HomePage = () => {
                 Home
               </Link>
               <Link
-                to="/pets/dogs"
+                to="/search?type=dog"
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <FaDog className="inline mr-2" /> Dogs
               </Link>
               <Link
-                to="/pets/cats"
+                to="/search?type=cat"
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <FaCat className="inline mr-2" /> Cats
               </Link>
               <Link
-                to="/pets/birds"
+                to="/search?type=bird"
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -284,16 +284,16 @@ const HomePage = () => {
         <section className="bg-gray-50 py-4 border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/pets/dogs" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
+              <Link to="/search?type=dog" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
                 <FaDog className="text-[#4CAF50]" /> Dogs
               </Link>
-              <Link to="/pets/cats" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
+              <Link to="/search?type=cat" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
                 <FaCat className="text-[#4CAF50]" /> Cats
               </Link>
-              <Link to="/pets/birds" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
+              <Link to="/search?type=bird" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
                 <FaDove className="text-[#4CAF50]" /> Birds
               </Link>
-              <Link to="/pets/other" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
+              <Link to="/search?type=other" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
                 <FaPaw className="text-[#4CAF50]" /> Other Pets
               </Link>
             </div>
@@ -455,6 +455,88 @@ const HomePage = () => {
                 <p className="text-gray-600">Important health considerations for your pet's well-being.</p>
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* Categories Section */}
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
+              Find Your New Best Friend
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <Link to="/search?type=dog" className="category-card">
+                <FaDog className="text-5xl text-white" />
+                <h3 className="text-xl font-semibold mt-4">Dogs</h3>
+              </Link>
+              <Link to="/search?type=cat" className="category-card">
+                <FaCat className="text-5xl text-white" />
+                <h3 className="text-xl font-semibold mt-4">Cats</h3>
+              </Link>
+              <Link to="/search?type=bird" className="category-card">
+                <FaDove className="text-5xl text-white" />
+                <h3 className="text-xl font-semibold mt-4">Birds</h3>
+              </Link>
+              <Link to="/search?type=other" className="category-card">
+                <FaPaw className="text-5xl text-white" />
+                <h3 className="text-xl font-semibold mt-4">Other Pets</h3>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Featured Pets Section */}
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-900">Featured Pets</h2>
+              <Link to="/search" className="text-[#4CAF50] hover:text-[#388E3C] font-medium">
+                View All
+              </Link>
+            </div>
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50] mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading featured pets...</p>
+              </div>
+            ) : featuredPets && featuredPets.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {featuredPets.map((pet) => (
+                  <div key={pet.id || Math.random()} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    <img
+                      src={pet.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDEyMCAxMTAuNDU3IDEyMCAxMDBDMTIwIDg5LjU0MjkgMTEwLjQ1NyA4MCAxMDAgODBDODkuNTQyOSA4MCA4MCA4OS41NDI5IDgwIDEwMEM4MCAxMTAuNDU3IDg5LjU0MjkgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOENBRjUwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDEyMCAxMzAuNDU3IDEyMCAxMjBDMTIwIDEwOS41NDMgMTEwLjQ1NyAxMDAgMTAwIDEwMEM4OS41NDI5IDEwMCA4MCAxMDkuNTQzIDgwIDEyMEM4MCAxMzAuNDU3IDg5LjU0MjkgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOENBRjUwIi8+Cjwvc3ZnPgo='}
+                      alt={pet.name || 'Pet'}
+                      className="w-full h-64 object-cover"
+                      onError={(e) => {
+                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDEyMCAxMTAuNDU3IDEyMCAxMDBDMTIwIDg5LjU0MjkgMTEwLjQ1NyA4MCAxMDAgODBDODkuNTQyOSA4MCA4MCA4OS41NDI5IDgwIDEwMEM4MCAxMTAuNDU3IDg5LjU0MjkgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOENBRjUwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDEyMCAxMzAuNDU3IDEyMCAxMjBDMTIwIDEwOS41NDMgMTEwLjQ1NyAxMDAgMTAwIDEwMEM4OS41NDI5IDEwMCA4MCAxMDkuNTQzIDgwIDEyMEM4MCAxMzAuNDU3IDg5LjU0MjkgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOENBRjUwIi8+Cjwvc3ZnPgo=';
+                      }}
+                    />
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-semibold text-gray-900">{pet.name || 'Unknown Pet'}</h3>
+                        {pet.type === 'dog' ? (
+                          <FaDog className="text-[#4CAF50] text-xl" />
+                        ) : (
+                          <FaCat className="text-[#4CAF50] text-xl" />
+                        )}
+                      </div>
+                      <p className="text-gray-600 mb-2">{pet.breed || 'Unknown'} • {pet.age || 'Unknown'} years old</p>
+                      <p className="text-gray-500 text-sm mb-6">{pet.description || 'No description available'}</p>
+                      <Link
+                        to={`/pets/${pet.id}`}
+                        className="block w-full px-4 py-2 bg-[#4CAF50] text-white text-center rounded-md hover:bg-[#388E3C] transition-colors"
+                      >
+                        Learn More
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-600">No featured pets available.</p>
+              </div>
+            )}
           </div>
         </section>
       </main>

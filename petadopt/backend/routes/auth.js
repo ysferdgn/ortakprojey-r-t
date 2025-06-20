@@ -7,13 +7,13 @@ const { auth } = require('../middleware/auth');
 // Register route
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { name, email, password } = req.body;
 
     // Input validation
-    if (!username || !email || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        error: 'Please provide all required fields: username, email, and password'
+        error: 'Please provide all required fields: name, email, and password'
       });
     }
 
@@ -34,18 +34,9 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Check if username already exists
-    const existingUsername = await User.findOne({ username });
-    if (existingUsername) {
-      return res.status(400).json({
-        success: false,
-        error: 'This username is already taken. Please choose a different one'
-      });
-    }
-
-    // Check if email already exists
-    const existingEmail = await User.findOne({ email });
-    if (existingEmail) {
+    // Check if user with that email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return res.status(400).json({
         success: false,
         error: 'This email is already registered. Please use a different email or try logging in'
@@ -54,7 +45,7 @@ router.post('/register', async (req, res) => {
 
     // Create new user
     const user = new User({
-      username,
+      name,
       email,
       password
     });
@@ -73,7 +64,7 @@ router.post('/register', async (req, res) => {
       token,
       user: {
         id: user._id,
-        username: user.username,
+        name: user.name,
         email: user.email
       }
     });
@@ -98,22 +89,22 @@ router.post('/register', async (req, res) => {
 // Login route
 router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     // Input validation
-    if (!username || !password) {
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
-        error: 'Please provide both username and password'
+        error: 'Please provide both email and password'
       });
     }
 
     // Find user by username
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
         success: false,
-        error: 'No account found with this username. Please check your username or sign up'
+        error: 'No account found with this email. Please check your email or sign up'
       });
     }
 
@@ -138,7 +129,7 @@ router.post('/login', async (req, res) => {
       token,
       user: {
         id: user._id,
-        username: user.username,
+        name: user.name,
         email: user.email
       }
     });

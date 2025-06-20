@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FaUpload, FaSpinner } from 'react-icons/fa';
 import axios from '../utils/axios';
 
 const AddPet = () => {
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,6 +20,33 @@ const AddPet = () => {
     location: '',
     images: []
   });
+
+  useEffect(() => {
+    if (isEditMode) {
+      setLoading(true);
+      axios.get(`/api/pets/${id}`)
+        .then(response => {
+          const petData = response.data;
+          // The 'images' field is not set here because it's a file input
+          setFormData({
+            name: petData.name,
+            type: petData.type,
+            breed: petData.breed,
+            age: petData.age,
+            gender: petData.gender,
+            size: petData.size,
+            description: petData.description,
+            location: petData.location,
+            images: [] // Keep images separate
+          });
+          setLoading(false);
+        })
+        .catch(err => {
+          setError('Failed to load pet data.');
+          setLoading(false);
+        });
+    }
+  }, [id, isEditMode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,56 +69,59 @@ const AddPet = () => {
     setLoading(true);
     setError(null);
 
-    try {
-      console.log('Form data:', formData);
-      
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        if (key === 'images') {
-          formData.images.forEach(image => {
-            formDataToSend.append('images', image);
-          });
-        } else {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
-
-      // Debug: Check if backend is running
-      console.log('Sending request to:', '/api/pets');
-      console.log('FormData contents:');
-      for (let [key, value] of formDataToSend.entries()) {
-        console.log(key, value);
+    const formDataToSend = new FormData();
+    Object.keys(formData).forEach(key => {
+      if (key === 'images') {
+        formData.images.forEach(image => {
+          formDataToSend.append('images', image);
+        });
+      } else {
+        formDataToSend.append(key, formData[key]);
       }
+    });
 
-      const response = await axios.post('/api/pets', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+    try {
+      const request = isEditMode
+        ? axios.put(`/api/pets/${id}`, formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } })
+        : axios.post('/api/pets', formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } });
 
+      const response = await request;
       console.log('Response:', response.data);
       navigate('/my-listings');
     } catch (err) {
       console.error('Error details:', err);
       console.error('Error response:', err.response);
-      
+
       if (err.response?.status === 401) {
-        setError('Please log in to add a pet listing.');
+        setError('Please log in to perform this action.');
       } else if (err.response?.status === 500) {
         setError('Server error. Please try again later.');
       } else if (err.code === 'ERR_NETWORK') {
-        setError('Cannot connect to server. Please check if backend is running.');
+        setError('Cannot connect to server. Please check if the backend is running.');
       } else {
-        setError(err.response?.data?.message || 'Failed to create pet listing. Please try again.');
+        setError(err.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} pet listing.`);
       }
     } finally {
       setLoading(false);
     }
   };
 
+  if (loading && isEditMode) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading pet details...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Add New Pet Listing</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        {isEditMode ? 'Edit Pet Listing' : 'Add New Pet Listing'}
+      </h1>
 
       {error && (
         <div className="bg-red-50 text-red-600 p-4 rounded-md mb-6">
@@ -282,20 +314,14 @@ const AddPet = () => {
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="mt-8 flex justify-end">
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full md:w-auto flex justify-center items-center gap-2 py-3 px-6 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-[#4CAF50] hover:bg-[#388E3C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4CAF50] disabled:opacity-50"
           >
-            {loading ? (
-              <span className="flex items-center">
-                <FaSpinner className="animate-spin mr-2" />
-                Creating Listing...
-              </span>
-            ) : (
-              'Create Listing'
-            )}
+            {loading ? <FaSpinner className="animate-spin" /> : null}
+            {loading ? 'Submitting...' : (isEditMode ? 'Save Changes' : 'Create Listing')}
           </button>
         </div>
       </form>

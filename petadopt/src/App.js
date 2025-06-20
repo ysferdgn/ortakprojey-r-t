@@ -73,6 +73,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/edit-pet/:id"
+            element={
+              <ProtectedRoute>
+                <AddPet />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>

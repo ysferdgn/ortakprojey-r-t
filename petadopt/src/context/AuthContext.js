@@ -26,9 +26,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (email, password) => {
     try {
-      const response = await auth.login({ username, password });
+      const response = await auth.login({ email, password });
       
       if (response.success) {
         setUser(response.user);
@@ -47,9 +47,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (username, email, password) => {
+  const register = async (name, email, password) => {
     try {
-      const response = await auth.register({ username, email, password });
+      const response = await auth.register({ name, email, password });
       
       if (response.success) {
         setUser(response.user);

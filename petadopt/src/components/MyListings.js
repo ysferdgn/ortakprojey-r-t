@@ -126,13 +126,13 @@ const MyListings = () => {
                       <p className="text-gray-600">{listing.breed} • {listing.age} years old</p>
                     </div>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => window.location.href = `/pets/${listing._id}/edit`}
+                      <Link
+                        to={`/edit-pet/${listing._id}`}
                         className="p-2 text-[#4CAF50] hover:text-[#388E3C]"
                         title="Edit"
                       >
                         <FaEdit />
-                      </button>
+                      </Link>
                       <button
                         onClick={() => confirmDelete(listing)}
                         className="p-2 text-red-500 hover:text-red-600"
