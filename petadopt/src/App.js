@@ -12,6 +12,13 @@ import PetDetail from './components/PetDetail';
 import AddPet from './components/AddPet';
 import PetGuide from './components/guide/PetGuide';
 import PetGuideArticle from './components/guide/PetGuideArticle';
+import DogBreedGuide from './components/guide/DogBreedGuide';
+import CatBreedGuide from './components/guide/CatBreedGuide';
+import FirstTimeOwnerGuide from './components/guide/FirstTimeOwnerGuide';
+import PetNutritionGuide from './components/guide/PetNutritionGuide';
+import GroomingGuide from './components/guide/GroomingGuide';
+import TrainingGuide from './components/guide/TrainingGuide';
+import HealthGuide from './components/guide/HealthGuide';
 import About from './components/About';
 import Contact from './components/Contact';
 import FAQ from './components/FAQ';
@@ -43,7 +50,14 @@ function App() {
           <Route path="/search" element={<Search />} />
           <Route path="/pets/:id" element={<PetDetail />} />
           <Route path="/pet-guide" element={<PetGuide />} />
-          <Route path="/pet-guide/:id" element={<PetGuideArticle />} />
+          <Route path="/dog-breed-guide" element={<DogBreedGuide />} />
+          <Route path="/cat-breed-guide" element={<CatBreedGuide />} />
+          <Route path="/first-time-owner-guide" element={<FirstTimeOwnerGuide />} />
+          <Route path="/pet-nutrition-guide" element={<PetNutritionGuide />} />
+          <Route path="/grooming-guide" element={<GroomingGuide />} />
+          <Route path="/training-guide" element={<TrainingGuide />} />
+          <Route path="/health-guide" element={<HealthGuide />} />
+          <Route path="/pet-guide/:articleId" element={<PetGuideArticle />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />

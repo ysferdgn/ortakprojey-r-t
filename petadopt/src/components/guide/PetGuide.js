@@ -112,7 +112,18 @@ const PetGuide = () => {
                 {category.articles.map((article) => (
                   <Link
                     key={article.id}
-                    to={`/pet-guide/${article.id}`}
+                    to={
+                      article.id === 'choosing-dog' ? '/dog-breed-guide' :
+                      article.id === 'choosing-cat' ? '/cat-breed-guide' :
+                      article.id === 'first-time-owner' ? '/first-time-owner-guide' :
+                      article.id === 'feeding-guide' ? '/pet-nutrition-guide' :
+                      article.id === 'grooming' ? '/grooming-guide' :
+                      article.id === 'training' ? '/training-guide' :
+                      article.id === 'vaccinations' ? '/health-guide#vaccinations' :
+                      article.id === 'common-illnesses' ? '/health-guide#illnesses' :
+                      article.id === 'emergency-care' ? '/health-guide#emergency' :
+                      `/pet-guide/${article.id}`
+                    }
                     className="block p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{article.title}</h3>
