@@ -4,8 +4,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import HomePage from './HomePage';
-import LoginPage from './LoginPage';
-import RegisterPage from './RegisterPage';
+import SignIn from './components/auth/SignIn';
+import SignUp from './components/auth/SignUp';
 import Profile from './components/Profile';
 import MyListings from './components/MyListings';
 import Search from './components/Search';
@@ -48,8 +48,8 @@ function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/signin" element={<LoginPage />} />
-            <Route path="/signup" element={<RegisterPage />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
             <Route path="/search" element={<Search />} />
             <Route path="/pets/:id" element={<PetDetail />} />
             <Route path="/pet-guide" element={<PetGuide />} />

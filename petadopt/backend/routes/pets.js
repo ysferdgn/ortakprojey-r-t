@@ -234,4 +234,20 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/pets/featured
+// @desc    Get featured pets (dummy endpoint)
+// @access  Public
+router.get('/featured', (req, res) => {
+  console.log("Accessed /api/pets/featured route");
+  res.json([]);
+});
+
+// @route   GET /api/pets/recent
+// @desc    Get recent pets (dummy endpoint)
+// @access  Public
+router.get('/recent', (req, res) => {
+  console.log("Accessed /api/pets/recent route");
+  res.json([]);
+});
+
 module.exports = router; 

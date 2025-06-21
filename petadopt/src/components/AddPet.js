@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaUpload, FaSpinner } from 'react-icons/fa';
+import { FaUpload, FaSpinner, FaArrowLeft } from 'react-icons/fa';
 import axios from '../utils/axios';
 
 const AddPet = () => {
@@ -119,6 +119,15 @@ const AddPet = () => {
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 mb-6 text-gray-700 hover:text-gray-900"
+        title="Geri Dön"
+      >
+        <FaArrowLeft className="text-lg" />
+        Geri
+      </button>
+
       <h1 className="text-3xl font-bold text-gray-900 mb-8">
         {isEditMode ? 'Edit Pet Listing' : 'Add New Pet Listing'}
       </h1>

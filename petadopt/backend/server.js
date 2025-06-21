@@ -36,7 +36,12 @@ app.use((req, res, next) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB Atlas
-const MONGODB_URI = process.env.MONGO_URL || 'mongodb+srv://215260064:BdSYYCv3UkaMtm5y@cluster0.valr7id.mongodb.net/petadopt?retryWrites=true&w=majority&appName=Cluster0';
+const MONGODB_URI = process.env.MONGO_URI;
+
+if (!MONGODB_URI) {
+  console.error('FATAL ERROR: MONGO_URI is not defined in .env file');
+  process.exit(1);
+}
 
 console.log('🔌 Connecting to MongoDB Atlas...');
 

@@ -34,7 +34,7 @@ const PetDetail = () => {
       return;
     }
 
-    if (user._id === pet.owner._id) {
+    if (user.id === pet.owner._id) {
       alert('Kendi hayvanınıza mesaj gönderemezsiniz');
       return;
     }
@@ -178,7 +178,7 @@ const PetDetail = () => {
               <button className="w-full px-6 py-3 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C]">
                 Contact Owner
               </button>
-              {user && user._id !== pet.owner._id && (
+              {user && user.id !== pet.owner._id && (
                 <button 
                   onClick={handleSendMessage}
                   disabled={sendingMessage}

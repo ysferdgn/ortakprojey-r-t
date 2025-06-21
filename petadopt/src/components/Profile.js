@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { FaUser, FaEnvelope, FaPhone, FaEdit, FaSave, FaTimes, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import axios from '../utils/axios';
+import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -19,27 +20,17 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUserProfile();
-  }, []);
-
-  const fetchUserProfile = async () => {
-    try {
-      const response = await axios.get('/api/users/profile');
+    if (user) {
       setFormData({
-        name: response.data.name,
-        email: response.data.email,
-        phone: response.data.phone || '',
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
       });
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      setError('Failed to load profile');
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -81,7 +72,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50]"></div>

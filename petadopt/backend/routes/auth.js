@@ -7,13 +7,13 @@ const { auth } = require('../middleware/auth');
 // Register route
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
 
     // Input validation
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !phone) {
       return res.status(400).json({
         success: false,
-        error: 'Please provide all required fields: name, email, and password'
+        error: 'Please provide all required fields: name, email, password, and phone'
       });
     }
 
@@ -47,7 +47,8 @@ router.post('/register', async (req, res) => {
     const user = new User({
       name,
       email,
-      password
+      password,
+      phone
     });
 
     await user.save();
@@ -65,7 +66,8 @@ router.post('/register', async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        phone: user.phone
       }
     });
   } catch (error) {
