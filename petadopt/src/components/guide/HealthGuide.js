@@ -59,15 +59,15 @@ export default function HealthGuide() {
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      <div className="p-8 bg-white shadow-sm">
+      <div className="p-8 bg-white shadow-sm relative">
+        <Link 
+          to="/pet-guide" 
+          className="absolute top-4 left-4 z-20 flex items-center gap-2 px-4 py-2 bg-white/80 rounded-full shadow-md hover:bg-white transition-all duration-200"
+        >
+          <FaArrowLeft className="text-green-600" />
+          <span className="text-gray-700 font-semibold">Geri Dön</span>
+        </Link>
         <div className="max-w-5xl mx-auto relative">
-          <Link 
-            to="/pet-guide" 
-            className="absolute -top-2 left-0 flex items-center gap-2 text-gray-600 hover:text-black"
-          >
-            <FaArrowLeft />
-            Geri Dön
-          </Link>
           <div className="text-center mt-8">
             <FaShieldAlt className="mx-auto text-5xl text-green-600" />
             <h1 className="mt-4 text-4xl font-bold text-gray-800">Evcil Hayvan Sağlık Rehberi</h1>

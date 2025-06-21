@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaHeart, FaShare, FaPhone, FaEnvelope, FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
+import { FaHeart, FaShare, FaPhone, FaEnvelope, FaMapMarkerAlt, FaArrowLeft, FaComments } from 'react-icons/fa';
 import axios from '../utils/axios';
+import { useAuth } from '../context/AuthContext';
 
 const PetDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [pet, setPet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   useEffect(() => {
     const fetchPetDetails = async () => {
@@ -24,6 +27,34 @@ const PetDetail = () => {
 
     fetchPetDetails();
   }, [id]);
+
+  const handleSendMessage = async () => {
+    if (!user) {
+      alert('Mesaj göndermek için giriş yapmalısınız');
+      return;
+    }
+
+    if (user._id === pet.owner._id) {
+      alert('Kendi hayvanınıza mesaj gönderemezsiniz');
+      return;
+    }
+
+    setSendingMessage(true);
+    try {
+      // Create or get conversation
+      const response = await axios.post('/api/conversations', {
+        otherUserId: pet.owner._id
+      });
+
+      // Navigate to messages page with the conversation
+      navigate(`/messages?conversation=${response.data._id}`);
+    } catch (err) {
+      console.error('Error creating conversation:', err);
+      alert('Mesaj gönderilirken bir hata oluştu');
+    } finally {
+      setSendingMessage(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -143,9 +174,21 @@ const PetDetail = () => {
                 <span>{pet.owner.email}</span>
               </div>
             </div>
-            <button className="w-full mt-6 px-6 py-3 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C]">
-              Contact Owner
-            </button>
+            <div className="mt-6 space-y-3">
+              <button className="w-full px-6 py-3 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C]">
+                Contact Owner
+              </button>
+              {user && user._id !== pet.owner._id && (
+                <button 
+                  onClick={handleSendMessage}
+                  disabled={sendingMessage}
+                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <FaComments />
+                  {sendingMessage ? 'Gönderiliyor...' : 'Mesaj Gönder'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

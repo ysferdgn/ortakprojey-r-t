@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
+const { Server } = require("socket.io");
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 
@@ -59,6 +61,7 @@ mongoose.set('debug', true);
 app.use('/api/auth', authRoutes);
 app.use('/api/pets', require('./routes/pets'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/conversations', require('./routes/conversations'));
 
 console.log('📡 API Routes loaded successfully');
 
@@ -80,7 +83,28 @@ app.use((req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+
+// 3. Socket.IO için http sunucusu oluştur
+const server = http.createServer(app); 
+
+// 4. Socket.IO sunucusunu başlat ve CORS ayarlarını yap
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5001", // React app'in adresi
+    methods: ["GET", "POST"]
+  }
+});
+
+// 5. Bir kullanıcı bağlandığında çalışacak kod
+io.on("connection", (socket) => {
+  console.log(`🔌 WebSocket: User connected - ${socket.id}`);
+
+  socket.on("disconnect", () => {
+    console.log(`🔌 WebSocket: User disconnected - ${socket.id}`);
+  });
+});
+
+server.listen(PORT, () => {
   console.log('🎉 Server is running successfully!');
   console.log('📍 Port:', PORT);
   console.log('🌍 Environment:', process.env.NODE_ENV || 'development');

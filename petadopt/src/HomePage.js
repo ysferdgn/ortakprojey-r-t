@@ -140,6 +140,12 @@ const HomePage = () => {
                   >
                     <FaPlus /> Add Pet
                   </Link>
+                  <Link
+                    to="/messages"
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
+                  >
+                    Mesajlar
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors flex items-center gap-2"
@@ -247,15 +253,13 @@ const HomePage = () => {
                 Search
               </Link>
               {isAuthenticated ? (
-                <button
-                  onClick={() => {
-                    handleSignOut();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-500 hover:text-red-600 hover:bg-gray-50"
+                <Link
+                  to="/messages"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-green-600 hover:bg-gray-50"
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Sign Out
-                </button>
+                  Mesajlar
+                </Link>
               ) : (
                 <>
                   <Link
@@ -322,6 +326,20 @@ const HomePage = () => {
                 className="px-8 py-3 bg-white text-[#4CAF50] rounded-md hover:bg-gray-100 transition-colors text-lg font-medium"
               >
                 Pet Guide
+              </Link>
+            </div>
+            <div className="mt-8 flex justify-center gap-4">
+              <Link
+                to="/add-pet"
+                className="rounded-full bg-blue-600 px-8 py-4 text-lg font-bold text-white shadow-lg transition hover:bg-blue-700"
+              >
+                Evcil Hayvan İlanı Ver
+              </Link>
+              <Link
+                to="/messages"
+                className="rounded-full bg-green-600 px-8 py-4 text-lg font-bold text-white shadow-lg transition hover:bg-green-700"
+              >
+                Mesajlar
               </Link>
             </div>
           </div>

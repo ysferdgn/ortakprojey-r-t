@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 import HomePage from './HomePage';
 import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
@@ -22,6 +23,7 @@ import HealthGuide from './components/guide/HealthGuide';
 import About from './components/About';
 import Contact from './components/Contact';
 import FAQ from './components/FAQ';
+import MessagesPage from './components/MessagesPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -41,62 +43,72 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/signin" element={<LoginPage />} />
-          <Route path="/signup" element={<RegisterPage />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/pets/:id" element={<PetDetail />} />
-          <Route path="/pet-guide" element={<PetGuide />} />
-          <Route path="/dog-breed-guide" element={<DogBreedGuide />} />
-          <Route path="/cat-breed-guide" element={<CatBreedGuide />} />
-          <Route path="/first-time-owner-guide" element={<FirstTimeOwnerGuide />} />
-          <Route path="/pet-nutrition-guide" element={<PetNutritionGuide />} />
-          <Route path="/grooming-guide" element={<GroomingGuide />} />
-          <Route path="/training-guide" element={<TrainingGuide />} />
-          <Route path="/health-guide" element={<HealthGuide />} />
-          <Route path="/pet-guide/:articleId" element={<PetGuideArticle />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/faq" element={<FAQ />} />
+      <SocketProvider>
+        <Router>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/signin" element={<LoginPage />} />
+            <Route path="/signup" element={<RegisterPage />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/pets/:id" element={<PetDetail />} />
+            <Route path="/pet-guide" element={<PetGuide />} />
+            <Route path="/dog-breed-guide" element={<DogBreedGuide />} />
+            <Route path="/cat-breed-guide" element={<CatBreedGuide />} />
+            <Route path="/first-time-owner-guide" element={<FirstTimeOwnerGuide />} />
+            <Route path="/pet-nutrition-guide" element={<PetNutritionGuide />} />
+            <Route path="/grooming-guide" element={<GroomingGuide />} />
+            <Route path="/training-guide" element={<TrainingGuide />} />
+            <Route path="/health-guide" element={<HealthGuide />} />
+            <Route path="/pet-guide/:articleId" element={<PetGuideArticle />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/faq" element={<FAQ />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/my-listings"
-            element={
-              <ProtectedRoute>
-                <MyListings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/add-pet"
-            element={
-              <ProtectedRoute>
-                <AddPet />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/edit-pet/:id"
-            element={
-              <ProtectedRoute>
-                <AddPet />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Router>
+            {/* Protected Routes */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-listings"
+              element={
+                <ProtectedRoute>
+                  <MyListings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/add-pet"
+              element={
+                <ProtectedRoute>
+                  <AddPet />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit-pet/:id"
+              element={
+                <ProtectedRoute>
+                  <AddPet />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/messages"
+              element={
+                <ProtectedRoute>
+                  <MessagesPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Router>
+      </SocketProvider>
     </AuthProvider>
   );
 }

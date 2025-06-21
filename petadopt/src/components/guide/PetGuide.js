@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHeart, FaHome, FaUserMd } from 'react-icons/fa';
+import { FaHeart, FaHome, FaUserMd, FaArrowLeft } from 'react-icons/fa';
 
 const PetGuide = () => {
   const guideCategories = [
@@ -76,7 +76,14 @@ const PetGuide = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
+      <Link 
+        to="/" 
+        className="absolute top-4 left-4 z-20 flex items-center gap-2 px-4 py-2 bg-white/80 rounded-full shadow-md hover:bg-white transition-all duration-200"
+      >
+        <FaArrowLeft className="text-[#4CAF50]" />
+        <span className="text-gray-700 font-semibold">Geri Dön</span>
+      </Link>
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Pet Care Guide</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
