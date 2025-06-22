@@ -153,4 +153,73 @@ router.post('/:conversationId/messages', auth, async (req, res) => {
   }
 });
 
+// @route   DELETE /api/conversations/messages/:messageId
+// @desc    Delete a message
+// @access  Private
+router.delete('/messages/:messageId', auth, async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const userId = req.user.id;
+
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ msg: 'Message not found' });
+    }
+
+    // Check if the user is the sender of the message
+    if (message.sender.toString() !== userId) {
+      return res.status(403).json({ msg: 'User not authorized to delete this message' });
+    }
+
+    await message.deleteOne();
+
+    // Optional: Check if this was the last message in the conversation and update Conversation.lastMessage
+    const conversation = await Conversation.findById(message.conversationId);
+    if (conversation && conversation.lastMessage && conversation.lastMessage.toString() === messageId) {
+      // Find the new last message (if any)
+      const lastMessage = await Message.findOne({ conversationId: message.conversationId }).sort({ createdAt: -1 });
+      conversation.lastMessage = lastMessage ? lastMessage._id : null;
+      await conversation.save();
+    }
+
+    res.json({ msg: 'Message deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting message:', error);
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   DELETE /api/conversations/:conversationId
+// @desc    Delete an entire conversation and all its messages
+// @access  Private
+router.delete('/:conversationId', auth, async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user.id;
+
+    const conversation = await Conversation.findById(conversationId);
+
+    if (!conversation) {
+      return res.status(404).json({ msg: 'Conversation not found' });
+    }
+
+    // Ensure the user is part of the conversation
+    if (!conversation.participants.includes(userId)) {
+      return res.status(403).json({ msg: 'User not authorized to delete this conversation' });
+    }
+
+    // Delete all messages associated with the conversation
+    await Message.deleteMany({ conversationId });
+
+    // Delete the conversation itself
+    await conversation.deleteOne();
+
+    res.json({ msg: 'Conversation deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting conversation:', error);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router; 

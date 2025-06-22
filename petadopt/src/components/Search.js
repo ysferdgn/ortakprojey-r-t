@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { FaSearch, FaFilter, FaPaw, FaDog, FaCat, FaDove, FaHome } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaPaw, FaHome } from 'react-icons/fa';
 import axios from '../utils/axios';
+import PetCard from './PetCard';
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
@@ -56,15 +57,6 @@ const Search = () => {
       params.delete('search');
     }
     navigate(`${location.pathname}?${params.toString()}`);
-  };
-
-  const getPetIcon = (type) => {
-    switch (type) {
-      case 'dog': return <FaDog className="text-[#4CAF50]" />;
-      case 'cat': return <FaCat className="text-[#4CAF50]" />;
-      case 'bird': return <FaDove className="text-[#4CAF50]" />;
-      default: return <FaPaw className="text-[#4CAF50]" />;
-    }
   };
 
   return (
@@ -170,32 +162,9 @@ const Search = () => {
             <p className="mt-4 text-gray-600">Loading pets...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {pets.map((pet) => (
-              <div key={pet._id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                <Link to={`/pets/${pet._id}`}>
-                  <img
-                    src={pet.images && pet.images.length > 0 ? pet.images[0] : '/placeholder-pet.jpg'}
-                    alt={pet.name}
-                    className="w-full h-48 object-cover"
-                    onError={(e) => { e.target.onerror = null; e.target.src='/placeholder-pet.jpg'; }}
-                  />
-                </Link>
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-semibold text-gray-900">{pet.name}</h3>
-                    {getPetIcon(pet.type)}
-                  </div>
-                  <p className="text-gray-600 mb-2">{pet.breed} • {pet.age} years old</p>
-                  <p className="text-gray-500 text-sm mb-4 line-clamp-2">{pet.description}</p>
-                  <Link
-                    to={`/pets/${pet._id}`}
-                    className="w-full block text-center px-4 py-2 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C] transition-colors"
-                  >
-                    Learn More
-                  </Link>
-                </div>
-              </div>
+              <PetCard key={pet._id} pet={pet} />
             ))}
           </div>
         )}

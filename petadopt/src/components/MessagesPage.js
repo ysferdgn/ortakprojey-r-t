@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaComments, FaPaperPlane, FaSpinner, FaArrowLeft, FaSearch } from 'react-icons/fa';
-import api from '../utils/api';
+import { FaComments, FaPaperPlane, FaSpinner, FaArrowLeft, FaSearch, FaTrash } from 'react-icons/fa';
+import api, { messages as messagesApi, conversationsApi } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { SocketContext } from '../context/SocketContext';
 
-const ConversationList = ({ conversations, onSelect, selectedConversationId }) => {
+const ConversationList = ({ conversations, onSelect, selectedConversationId, onDelete }) => {
     const getInitials = (name) => {
         if (!name) return '?';
         const names = name.split(' ');
@@ -34,7 +34,7 @@ const ConversationList = ({ conversations, onSelect, selectedConversationId }) =
                         <div
                             key={convo._id}
                             onClick={() => onSelect(convo._id)}
-                            className={`flex items-center p-4 cursor-pointer hover:bg-gray-100 ${selectedConversationId === convo._id ? 'bg-blue-50' : ''}`}
+                            className={`group flex items-center p-4 cursor-pointer hover:bg-gray-100 ${selectedConversationId === convo._id ? 'bg-blue-50' : ''}`}
                         >
                             <div className="relative w-12 h-12">
                                 <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-bold text-xl">
@@ -47,6 +47,16 @@ const ConversationList = ({ conversations, onSelect, selectedConversationId }) =
                                 <p className="font-semibold text-gray-800">{convo.otherParticipant?.name || 'Bilinmeyen Kullanıcı'}</p>
                                 <p className="text-sm text-gray-500 truncate">{convo.lastMessage?.text || 'Henüz mesaj yok...'}</p>
                             </div>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Prevent onSelect from firing
+                                    onDelete(convo._id);
+                                }}
+                                className="ml-2 p-2 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                title="Sohbeti Sil"
+                            >
+                                <FaTrash />
+                            </button>
                         </div>
                     ))
                 ) : (
@@ -81,6 +91,10 @@ const ChatWindow = ({ conversationId, user }) => {
                 setMessages(res.data);
             } catch (err) {
                 console.error("Mesajlar yüklenirken hata oluştu", err);
+                // If the conversation was deleted, the selected ID might be invalid
+                if (err.response && err.response.status === 404) {
+                    setMessages([]); // Clear messages if conversation not found
+                }
             } finally {
                 setLoading(false);
             }
@@ -193,6 +207,25 @@ export default function MessagesPage() {
         fetchConversations();
     }, []);
 
+    const handleDeleteConversation = async (conversationId) => {
+        if (!window.confirm('Bu sohbeti ve içindeki tüm mesajları kalıcı olarak silmek istediğinizden emin misiniz?')) {
+            return;
+        }
+        try {
+            await conversationsApi.deleteConversation(conversationId);
+            setConversations(prev => prev.filter(c => c._id !== conversationId));
+            // If the deleted conversation was selected, unselect it
+            if (selectedConversationId === conversationId) {
+                setSelectedConversationId(null);
+                // Optionally clear the URL parameter
+                navigate('/messages', { replace: true });
+            }
+        } catch (err) {
+            console.error('Sohbet silinirken hata oluştu:', err);
+            alert('Sohbet silinirken bir hata oluştu.');
+        }
+    };
+
     if (loading || !user) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -219,6 +252,7 @@ export default function MessagesPage() {
                         conversations={conversations}
                         onSelect={setSelectedConversationId}
                         selectedConversationId={selectedConversationId}
+                        onDelete={handleDeleteConversation}
                     />
                 </div>
                 <div className="flex-auto h-full flex flex-col">

@@ -30,4 +30,11 @@ export const auth = {
   },
 };
 
+export const conversationsApi = {
+  deleteConversation: async (conversationId) => {
+    const response = await api.delete(`/conversations/${conversationId}`);
+    return response.data;
+  },
+};
+
 export default api; 
