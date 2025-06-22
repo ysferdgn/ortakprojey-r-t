@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
   FaBars, FaTimes, FaHome, FaDog, FaUser, FaSignOutAlt, 
-  FaSignInAlt, FaUserPlus, FaListAlt, FaPlusCircle, FaBookOpen, FaSearch 
+  FaSignInAlt, FaUserPlus, FaListAlt, FaPlusCircle, FaBookOpen, FaSearch, FaEnvelope
 } from 'react-icons/fa';
 
 const Sidebar = ({ isExpanded, toggleSidebar }) => {
@@ -19,6 +19,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
     ? [
         { icon: <FaHome />, text: 'Ana Sayfa', path: '/' },
         { icon: <FaSearch />, text: 'Hayvan Ara', path: '/search' },
+        { icon: <FaEnvelope />, text: 'Mesajlar', path: '/messages' },
         { icon: <FaListAlt />, text: 'İlanlarım', path: '/my-listings' },
         { icon: <FaPlusCircle />, text: 'İlan Ekle', path: '/add-pet' },
         { icon: <FaUser />, text: 'Profil', path: '/profile' },

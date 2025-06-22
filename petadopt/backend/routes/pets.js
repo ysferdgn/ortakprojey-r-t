@@ -5,6 +5,25 @@ const { auth } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 const fs = require('fs');
 const path = require('path');
+const cloudinary = require('cloudinary').v2;
+
+// Helper to extract Public ID from Cloudinary URL
+const getPublicIdFromUrl = (url) => {
+    if (!url || !url.includes('cloudinary')) return null;
+    try {
+        const parts = url.split('/');
+        const uploadIndex = parts.indexOf('upload');
+        if (uploadIndex === -1) return null;
+        // The public ID is the rest of the path after the version, without the extension
+        // e.g., v123456/folder/image.jpg -> we need folder/image
+        const publicIdWithExtension = parts.slice(uploadIndex + 2).join('/');
+        const publicId = publicIdWithExtension.substring(0, publicIdWithExtension.lastIndexOf('.'));
+        return publicId;
+    } catch (error) {
+        console.error('Failed to extract public ID from URL:', url, error);
+        return null;
+    }
+};
 
 // **ROUTING ORDER FIX**
 // More specific routes should come before dynamic routes like /:id
@@ -157,7 +176,7 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', auth, upload.array('images', 5), async (req, res) => {
   try {
     const pet = await Pet.findById(req.params.id);
-    
+
     if (!pet) {
       return res.status(404).json({ message: 'Pet not found' });
     }
@@ -167,34 +186,52 @@ router.put('/:id', auth, upload.array('images', 5), async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this pet' });
     }
 
+    const updateData = { ...req.body };
+    
     // Handle new images if uploaded
     if (req.files && req.files.length > 0) {
-      const newImageUrls = req.files.map(file => `/uploads/${file.filename}`);
+      // New images were uploaded, set them as the new images
+      updateData.images = req.files.map(file => file.path);
       
-      // Delete old images
-      pet.images.forEach(imageUrl => {
-        const imagePath = path.join(__dirname, '..', imageUrl);
-        if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
+      // Delete old images from Cloudinary
+      if (pet.images && pet.images.length > 0) {
+        for (const imageUrl of pet.images) {
+          const publicId = getPublicIdFromUrl(imageUrl);
+          if (publicId) {
+            await cloudinary.uploader.destroy(publicId).catch(err => console.error("Failed to delete old image from Cloudinary:", err));
+          }
         }
-      });
-
-      req.body.images = newImageUrls;
+      }
+    } else if (updateData.images && typeof updateData.images === 'string') {
+        // If no new images, but images are in body as string (e.g., from form submit)
+        try {
+            updateData.images = JSON.parse(updateData.images);
+        } catch (e) {
+            console.error("Error parsing images from body", e);
+            // If parsing fails, we remove it from updateData to not corrupt the DB entry
+            delete updateData.images;
+        }
     }
+
+    updateData.updatedAt = Date.now();
 
     const updatedPet = await Pet.findByIdAndUpdate(
       req.params.id,
-      { ...req.body, updatedAt: Date.now() },
-      { new: true }
+      { $set: updateData },
+      { new: true, runValidators: true }
     );
 
     res.json(updatedPet);
   } catch (error) {
-    // If there's an error, delete uploaded files
-    if (req.files) {
-      req.files.forEach(file => {
-        fs.unlinkSync(file.path);
-      });
+    console.error("Error updating pet:", error);
+    // If an error occurs, try to delete any newly uploaded files from Cloudinary to avoid orphans
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        // multer-storage-cloudinary provides the public_id in `filename`
+        if (file.filename) {
+          await cloudinary.uploader.destroy(file.filename).catch(err => console.error("Failed to delete new image from Cloudinary after error:", err));
+        }
+      }
     }
     res.status(500).json({ message: 'Error updating pet', error: error.message });
   }
@@ -214,22 +251,24 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to delete this pet' });
     }
 
-    // Delete associated images
-    pet.images.forEach(imageUrl => {
-      const imagePath = path.join(__dirname, '..', imageUrl);
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+    // Delete associated images from Cloudinary
+    if (pet.images && pet.images.length > 0) {
+      for (const imageUrl of pet.images) {
+        const publicId = getPublicIdFromUrl(imageUrl);
+        if (publicId) {
+          // Fire-and-forget deletion, or await if you need to ensure completion
+          cloudinary.uploader.destroy(publicId).catch(err => 
+            console.error(`Failed to delete image from Cloudinary: ${publicId}`, err)
+          );
+        }
       }
-    });
-
-    // This method is deprecated, using deleteOne() instead.
-    const result = await Pet.deleteOne({ _id: req.params.id });
-    if(result.deletedCount === 0){
-        return res.status(404).json({ message: 'Pet not found for deletion' });
     }
+
+    await Pet.findByIdAndDelete(req.params.id);
 
     res.json({ message: 'Pet removed' });
   } catch (error) {
+    console.error("Error deleting pet:", error);
     res.status(500).json({ message: 'Error deleting pet', error: error.message });
   }
 });

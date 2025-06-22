@@ -1,341 +1,207 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaUpload, FaSpinner, FaArrowLeft } from 'react-icons/fa';
-import axios from '../utils/axios';
+import { FaArrowLeft } from 'react-icons/fa';
+import api from '../utils/api';
+
+const breeds = {
+    dog: [
+        "Pomeranian", "Chihuahua", "Yorkshire Terrier", "Maltese", "Shih Tzu", "Pekingese", "Toy Poodle",
+        "Cavalier King Charles", "Cocker Spaniel", "Beagle", "Bulldog", "French Bulldog", "Basenji",
+        "Basset Hound", "Border Collie", "Shiba Inu", "Labrador Retriever", "Golden Retriever", "German Shepherd",
+        "Siberian Husky", "Boxer", "Doberman", "Rottweiler", "Dalmatian", "Kangal", "Belgian Malinois",
+        "Anatolian Shepherd", "Great Pyrenees", "Shetland Sheepdog", "Australian Shepherd", "Alaskan Malamute",
+        "Akita Inu", "American Pit Bull Terrier", "Whippet", "Greyhound", "Papillon", "Boston Terrier",
+        "Jack Russell Terrier", "Cane Corso", "Samoyed"
+    ],
+    cat: [
+        "British Shorthair", "Scottish Fold", "Persian (İran Kedisi)", "Maine Coon", "Turkish Van (Van Kedisi)",
+        "Turkish Angora (Ankara Kedisi)", "Siamese", "Ragdoll", "American Shorthair", "Bengal", "Sphynx (Tüysüz Kedi)",
+        "Norwegian Forest Cat", "Russian Blue", "Burmese", "Chartreux", "Abyssinian", "Exotic Shorthair",
+        "Oriental Shorthair", "Devon Rex", "Cornish Rex", "Manx", "Selkirk Rex", "Himalayan", "Balinese",
+        "Savannah", "Toyger", "Munchkin", "LaPerm", "Tonkinese", "Turkish Semi-longhair", "Egyptian Mau",
+        "Japanese Bobtail", "Somali", "Singapura", "American Curl", "Havana Brown", "Kurilian Bobtail",
+        "Lykoi (Kurt Kedi)", "Ragamuffin", "Pixie-bob"
+    ],
+    bird: [
+        "Muhabbet Kuşu", "Sultan Papağanı (Cockatiel)", "Cennet Papağanı (Lovebird)", "Jako Papağanı (African Grey)",
+        "Amazon Papağanı", "Macaw Papağanı", "Kanarya", "Zebra İspinozu (Zebra Finch)", "Bengal İspinozu",
+        "Hint Bülbülü", "Paraket (Budgerigar türü)", "Lori Papağanı", "Kakadu (Cockatoo)", "Senegal Papağanı",
+        "Konur Papağanı (Conure)", "Mavi Papağan", "Yeşil Papağan", "Goldfinch (Saka Kuşu)", "İspinoz (Finch)",
+        "Eclectus Papağanı", "Gülbaşlı Muhabbet Kuşu", "Büyük Alexander Papağanı", "Turuncu Suratlı Kanarya",
+        "Maskeli Lovebird", "Java İspinozu", "Sarı Kanarya", "Mavi İspinoz", "Kakariki", "Kakadu Rose",
+        "Keşiş Papağanı (Monk Parakeet)"
+    ]
+};
 
 const AddPet = () => {
-  const { id } = useParams();
-  const isEditMode = Boolean(id);
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    type: 'dog',
-    breed: '',
-    age: '',
-    gender: 'male',
-    size: 'medium',
-    description: '',
-    location: '',
-    images: []
-  });
-
-  useEffect(() => {
-    if (isEditMode) {
-      setLoading(true);
-      axios.get(`/api/pets/${id}`)
-        .then(response => {
-          const petData = response.data;
-          // The 'images' field is not set here because it's a file input
-          setFormData({
-            name: petData.name,
-            type: petData.type,
-            breed: petData.breed,
-            age: petData.age,
-            gender: petData.gender,
-            size: petData.size,
-            description: petData.description,
-            location: petData.location,
-            images: [] // Keep images separate
-          });
-          setLoading(false);
-        })
-        .catch(err => {
-          setError('Failed to load pet data.');
-          setLoading(false);
-        });
-    }
-  }, [id, isEditMode]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, ...files]
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    const formDataToSend = new FormData();
-    Object.keys(formData).forEach(key => {
-      if (key === 'images') {
-        formData.images.forEach(image => {
-          formDataToSend.append('images', image);
-        });
-      } else {
-        formDataToSend.append(key, formData[key]);
-      }
+    const { id } = useParams();
+    const isEditMode = Boolean(id);
+    const [petData, setPetData] = useState({
+        name: '',
+        age: '',
+        type: '',
+        breed: '',
+        gender: '',
+        location: '',
+        description: '',
     });
+    const [images, setImages] = useState([]);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
-    try {
-      const request = isEditMode
-        ? axios.put(`/api/pets/${id}`, formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } })
-        : axios.post('/api/pets', formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } });
+    useEffect(() => {
+        if (isEditMode) {
+            setLoading(true);
+            api.get(`/pets/${id}`)
+                .then(response => {
+                    setPetData(response.data);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    setError('İlan bilgileri yüklenemedi.');
+                    setLoading(false);
+                });
+        }
+    }, [id, isEditMode]);
 
-      const response = await request;
-      console.log('Response:', response.data);
-      navigate('/my-listings');
-    } catch (err) {
-      console.error('Error details:', err);
-      console.error('Error response:', err.response);
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setPetData(prevData => {
+            const newData = { ...prevData, [name]: value };
+            if (name === 'type') {
+                newData.breed = '';
+            }
+            return newData;
+        });
+    };
 
-      if (err.response?.status === 401) {
-        setError('Please log in to perform this action.');
-      } else if (err.response?.status === 500) {
-        setError('Server error. Please try again later.');
-      } else if (err.code === 'ERR_NETWORK') {
-        setError('Cannot connect to server. Please check if the backend is running.');
-      } else {
-        setError(err.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} pet listing.`);
-      }
-    } finally {
-      setLoading(false);
+    const handleImageChange = (e) => {
+        if (e.target.files) {
+            setImages(Array.from(e.target.files));
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        const formData = new FormData();
+
+        // Append only form fields, not the whole petData object
+        formData.append('name', petData.name);
+        formData.append('age', petData.age);
+        formData.append('type', petData.type);
+        formData.append('breed', petData.breed);
+        formData.append('gender', petData.gender);
+        formData.append('location', petData.location);
+        formData.append('description', petData.description);
+        
+        // If new images are selected, append them
+        if (images.length > 0) {
+            images.forEach(image => {
+                formData.append('images', image);
+            });
+        } else if (isEditMode) {
+            // If in edit mode and no new images, send back the existing image URLs
+            // This prevents the backend from deleting them
+            formData.append('images', JSON.stringify(petData.images));
+        }
+
+        try {
+            const request = isEditMode
+                ? api.put(`/pets/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+                : api.post('/pets', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+
+            await request;
+            navigate('/my-listings');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Bir hata oluştu.');
+            setLoading(false);
+        }
+    };
+
+    if (loading && isEditMode) {
+        return <div className="text-center p-8">İlan yükleniyor...</div>;
     }
-  };
 
-  if (loading && isEditMode) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading pet details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 mb-6 text-gray-700 hover:text-gray-900"
-        title="Geri Dön"
-      >
-        <FaArrowLeft className="text-lg" />
-        Geri
-      </button>
-
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">
-        {isEditMode ? 'Edit Pet Listing' : 'Add New Pet Listing'}
-      </h1>
-
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-md mb-6">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Pet Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#4CAF50] focus:border-[#4CAF50]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Pet Type
-              </label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#4CAF50] focus:border-[#4CAF50]"
-              >
-                <option value="dog">Dog</option>
-                <option value="cat">Cat</option>
-                <option value="bird">Bird</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Breed
-              </label>
-              <input
-                type="text"
-                name="breed"
-                value={formData.breed}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#4CAF50] focus:border-[#4CAF50]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Age (years)
-              </label>
-              <input
-                type="number"
-                name="age"
-                value={formData.age}
-                onChange={handleChange}
-                required
-                min="0"
-                step="0.1"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#4CAF50] focus:border-[#4CAF50]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Gender
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#4CAF50] focus:border-[#4CAF50]"
-              >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Size
-              </label>
-              <select
-                name="size"
-                value={formData.size}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#4CAF50] focus:border-[#4CAF50]"
-              >
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Description */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Description</h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              About the Pet
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              required
-              rows="4"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#4CAF50] focus:border-[#4CAF50]"
-            />
-          </div>
-        </div>
-
-        {/* Location */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Location</h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              City/Area
-            </label>
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#4CAF50] focus:border-[#4CAF50]"
-            />
-          </div>
-        </div>
-
-        {/* Images */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Pet Images</h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Upload Images (up to 5) - Optional for testing
-            </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-              <div className="space-y-1 text-center">
-                <FaUpload className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="flex text-sm text-gray-600">
-                  <label className="relative cursor-pointer bg-white rounded-md font-medium text-[#4CAF50] hover:text-[#388E3C]">
-                    <span>Upload files</span>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="sr-only"
-                    />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
+        <div className="container mx-auto p-4">
+            <h1 className="text-2xl font-bold mb-4">{isEditMode ? 'İlanı Düzenle' : 'Yeni İlan Ekle'}</h1>
+            {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">{error}</div>}
+            <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <div className="mb-4">
+                    <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">İsim</label>
+                    <input type="text" name="name" id="name" value={petData.name} onChange={handleChange} placeholder="İsim" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                 </div>
-                <p className="text-xs text-gray-500">
-                  PNG, JPG, GIF up to 10MB (Optional)
-                </p>
-              </div>
-            </div>
-            {formData.images.length > 0 && (
-              <div className="mt-4 grid grid-cols-5 gap-4">
-                {formData.images.map((image, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={URL.createObjectURL(image)}
-                      alt={`Preview ${index + 1}`}
-                      className="h-20 w-20 object-cover rounded-md"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            <p className="text-xs text-gray-500 mt-2">
-              Note: You can submit without images for testing purposes
-            </p>
-          </div>
-        </div>
+                <div className="mb-4">
+                    <label htmlFor="type" className="block text-gray-700 text-sm font-bold mb-2">Tür</label>
+                    <select name="type" id="type" value={petData.type} onChange={handleChange} required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="" disabled>Tür Seçin</option>
+                        <option value="cat">Kedi</option>
+                        <option value="dog">Köpek</option>
+                        <option value="bird">Kuş</option>
+                        <option value="other">Diğer</option>
+                    </select>
+                </div>
 
-        <div className="mt-8 flex justify-end">
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full md:w-auto flex justify-center items-center gap-2 py-3 px-6 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-[#4CAF50] hover:bg-[#388E3C] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4CAF50] disabled:opacity-50"
-          >
-            {loading ? <FaSpinner className="animate-spin" /> : null}
-            {loading ? 'Submitting...' : (isEditMode ? 'Save Changes' : 'Create Listing')}
-          </button>
+                <div className="mb-4">
+                    <label htmlFor="breed" className="block text-gray-700 text-sm font-bold mb-2">Cins</label>
+                    {petData.type && breeds[petData.type] ? (
+                        <select name="breed" id="breed" value={petData.breed} onChange={handleChange} required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <option value="" disabled>Cins Seçin</option>
+                            {breeds[petData.type].map((breed) => (
+                                <option key={breed} value={breed}>{breed}</option>
+                            ))}
+                        </select>
+                    ) : (
+                        <input type="text" name="breed" id="breed" value={petData.breed} onChange={handleChange} placeholder="Cins" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                    )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="mb-4">
+                        <label htmlFor="age" className="block text-gray-700 text-sm font-bold mb-2">Yaş</label>
+                        <input type="number" name="age" id="age" value={petData.age} onChange={handleChange} placeholder="Yaş" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="gender" className="block text-gray-700 text-sm font-bold mb-2">Cinsiyet</label>
+                        <select name="gender" id="gender" value={petData.gender} onChange={handleChange} required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <option value="" disabled>Cinsiyet Seçin</option>
+                            <option value="female">Dişi</option>
+                            <option value="male">Erkek</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="mb-4">
+                    <label htmlFor="location" className="block text-gray-700 text-sm font-bold mb-2">Konum / Şehir</label>
+                    <input type="text" name="location" id="location" value={petData.location} onChange={handleChange} placeholder="Şehir" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                </div>
+
+                <div className="mb-4">
+                    <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">Açıklama</label>
+                    <textarea name="description" id="description" value={petData.description} onChange={handleChange} placeholder="Evcil hayvanınız hakkında bilgi verin..." required rows="4" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                </div>
+
+                <div className="mb-4">
+                    <label htmlFor="images" className="block text-gray-700 text-sm font-bold mb-2">Resimler</label>
+                    <input type="file" name="images" id="images" onChange={handleImageChange} multiple accept="image/*" className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
+                </div>
+
+                <div className="flex items-center justify-between">
+                    <button type="submit" disabled={loading} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50">
+                        {loading ? (isEditMode ? 'Güncelleniyor...' : 'Ekleniyor...') : (isEditMode ? 'İlanı Güncelle' : 'İlanı Oluştur')}
+                    </button>
+                    <button type="button" onClick={() => navigate(-1)} className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        <FaArrowLeft className="-ml-1 mr-2 h-5 w-5" />
+                        Geri
+                    </button>
+                </div>
+            </form>
         </div>
-      </form>
-    </div>
-  );
+    );
 };
 
 export default AddPet; 
