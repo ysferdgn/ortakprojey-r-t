@@ -7,7 +7,9 @@ const { auth, adminAuth } = require('../middleware/auth');
 // Get user profile
 router.get('/profile', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    const user = await User.findById(req.user._id)
+      .select('-password')
+      .populate('savedPets');
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching profile', error: error.message });
@@ -67,6 +69,34 @@ router.get('/pets', auth, async (req, res) => {
     res.json(pets);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching pets', error: error.message });
+  }
+});
+
+// Toggle a pet in user's saved list
+router.post('/saved-pets/:petId', auth, async (req, res) => {
+  try {
+    const petId = req.params.petId;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const petIndex = user.savedPets.indexOf(petId);
+
+    if (petIndex > -1) {
+      // It's saved, so remove it
+      user.savedPets.splice(petIndex, 1);
+    } else {
+      // It's not saved, so add it
+      user.savedPets.push(petId);
+    }
+
+    await user.save();
+    res.json(user.savedPets);
+  } catch (error) {
+    console.error('Error toggling saved pet:', error);
+    res.status(500).json({ message: 'Error updating saved pets', error: error.message });
   }
 });
 

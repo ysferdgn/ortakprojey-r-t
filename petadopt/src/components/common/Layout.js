@@ -5,6 +5,7 @@ import {
   FaBars, FaTimes, FaHome, FaDog, FaUser, FaSignOutAlt, 
   FaSignInAlt, FaUserPlus, FaListAlt, FaPlusCircle, FaBookOpen, FaSearch, FaEnvelope
 } from 'react-icons/fa';
+import Header from './Header';
 
 const Sidebar = ({ isExpanded, toggleSidebar }) => {
   const { user, logout } = useAuth();
@@ -65,7 +66,6 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
   );
 };
 
-
 const Layout = ({ children }) => {
   const [isSidebarExpanded, setSidebarExpanded] = useState(false);
 
@@ -74,13 +74,16 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-100">
+    <div className="relative min-h-screen bg-gray-50">
       <Sidebar isExpanded={isSidebarExpanded} toggleSidebar={toggleSidebar} />
-      <main className={`transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20'}`}>
-        <div className="p-8">
-            {children}
-        </div>
-      </main>
+      <div className={`transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20'}`}>
+        <Header />
+        <main>
+            <div className="p-8">
+                {children}
+            </div>
+        </main>
+      </div>
     </div>
   );
 };

@@ -3,10 +3,14 @@ import { FaUser, FaEnvelope, FaPhone, FaEdit, FaSave, FaTimes, FaArrowLeft } fro
 import { useNavigate } from 'react-router-dom';
 import axios from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
+import PetCard from './PetCard';
+import Loading from './common/Loading';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,17 +24,33 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
-    }
-  }, [user]);
+    const fetchProfile = async () => {
+      if (user) {
+        try {
+          setLoading(true);
+          const response = await axios.get('/api/users/profile');
+          setProfileData(response.data);
+          setFormData({
+            name: response.data.name || '',
+            email: response.data.email || '',
+            phone: response.data.phone || '',
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: '',
+          });
+        } catch (err) {
+          setError('Failed to load profile data.');
+        } finally {
+          setLoading(false);
+        }
+      } else if (!authLoading) {
+          // If there's no user and auth is not loading, redirect
+          navigate('/signin');
+      }
+    };
+
+    fetchProfile();
+  }, [user, authLoading, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,17 +92,24 @@ const Profile = () => {
     }
   };
 
-  if (!user) {
+  if (loading || authLoading) {
+    return <Loading />;
+  }
+
+  if (!profileData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50]"></div>
+      <div className="text-center py-12">
+        <p className="text-red-600">{error || "Could not load profile."}</p>
       </div>
     );
   }
+  
+  // Filter out any null pets that might result from a deleted record
+  const savedPets = profileData.savedPets ? profileData.savedPets.filter(p => p !== null) : [];
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 mb-6 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
@@ -91,7 +118,7 @@ const Profile = () => {
           <FaArrowLeft className="text-lg" />
           Geri
         </button>
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
@@ -230,6 +257,28 @@ const Profile = () => {
               </div>
             </form>
           </div>
+        </div>
+
+        {/* Saved Pets Section */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Saved Pets</h2>
+          {savedPets.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {savedPets.map(pet => (
+                <PetCard key={pet._id} pet={pet} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 px-6 bg-white rounded-lg shadow-sm">
+              <p className="text-gray-500">You haven't saved any pets yet.</p>
+              <button
+                onClick={() => navigate('/search')}
+                className="mt-4 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                Find Pets to Save
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../utils/api';
+import api, { auth } from '../utils/api';
 
 const AuthContext = createContext(null);
 
@@ -13,6 +13,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [savedPets, setSavedPets] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,18 +22,27 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     
     if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      if (parsedUser.savedPets) {
+        setSavedPets(parsedUser.savedPets);
+      }
     }
     setLoading(false);
   }, []);
+
+  const updateUserInContext = (userData) => {
+    setUser(userData);
+    setSavedPets(userData.savedPets || []);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
 
   const login = async (email, password) => {
     try {
       const response = await auth.login({ email, password });
       
       if (response.success) {
-        setUser(response.user);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        updateUserInContext(response.user);
         localStorage.setItem('token', response.token);
         return { success: true };
       } else {
@@ -52,8 +62,7 @@ export const AuthProvider = ({ children }) => {
       const response = await auth.register({ name, email, password, phone });
       
       if (response.success) {
-        setUser(response.user);
-        localStorage.setItem('user', JSON.stringify(response.user));
+        updateUserInContext(response.user);
         localStorage.setItem('token', response.token);
         return { success: true };
       } else {
@@ -70,16 +79,34 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    setSavedPets([]);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
   };
 
+  const toggleSavedPet = async (petId) => {
+    try {
+      const updatedSavedPets = await api.post(`/users/saved-pets/${petId}`);
+      setSavedPets(updatedSavedPets.data);
+
+      const updatedUser = { ...user, savedPets: updatedSavedPets.data };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+    } catch (error) {
+        console.error("Failed to toggle saved pet in context", error);
+        throw error;
+    }
+  };
+
   const value = {
     user,
+    savedPets,
     loading,
     login,
     register,
     logout,
+    toggleSavedPet,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

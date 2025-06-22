@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from './utils/axios';
-import { FaPaw, FaFacebook, FaTwitter, FaInstagram, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaPaw, FaFacebook, FaTwitter, FaInstagram, FaEnvelope, FaPhone, FaHome } from 'react-icons/fa';
 import './HomePage.css';
 import PetCard from './components/PetCard';
 
@@ -34,10 +34,20 @@ const HomePage = () => {
 
   return (
     <div className="home-page">
+      {/* Page Title */}
+      <div className="mb-8">
+        <div className="flex items-center gap-4">
+          <FaHome className="text-4xl text-gray-500" />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">Ana Sayfa - Sahiplendirme İlanları</h1>
+            <p className="text-gray-600 mt-1">Yeni bir dost arıyorsan, aşağıdaki ilanlara göz atabilirsin.</p>
+          </div>
+        </div>
+      </div>
+
       {/* Recent Ads Section */}
-      <section className="py-16">
+      <section>
         <div className="mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Recently Added</h2>
           {loading ? (
             <div className="text-center">Loading...</div>
           ) : (
@@ -49,41 +59,6 @@ const HomePage = () => {
           )}
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-12 -m-8 mt-0 px-8">
-        <div className="mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-xl font-bold mb-4">PetAdopt</h3>
-              <p className="text-gray-400">Connecting pets with loving homes. We are dedicated to finding forever families for animals in need.</p>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4">Quick Links</h3>
-              <ul className="space-y-2">
-                <li><Link to="/about" className="hover:text-[#4CAF50]">About Us</Link></li>
-                <li><Link to="/contact" className="hover:text-[#4CAF50]">Contact</Link></li>
-                <li><Link to="/faq" className="hover:text-[#4CAF50]">FAQ</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold mb-4">Contact Info</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li className="flex items-center"><FaEnvelope className="mr-2"/> contact@petadopt.com</li>
-                <li className="flex items-center"><FaPhone className="mr-2"/> +1 (123) 456-7890</li>
-              </ul>
-              <div className="flex space-x-4 mt-4">
-                <a href="#!" className="hover:text-[#4CAF50]"><FaFacebook size={24}/></a>
-                <a href="#!" className="hover:text-[#4CAF50]"><FaTwitter size={24}/></a>
-                <a href="#!" className="hover:text-[#4CAF50]"><FaInstagram size={24}/></a>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 border-t border-gray-700 pt-6 text-center text-gray-500">
-            <p>&copy; 2024 PetAdopt. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

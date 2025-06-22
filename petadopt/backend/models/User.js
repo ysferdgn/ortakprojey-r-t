@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 6
   },
+  savedPets: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Pet'
+  }],
   phone: {
     type: String,
     required: false
