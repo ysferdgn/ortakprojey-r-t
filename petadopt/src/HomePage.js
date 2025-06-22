@@ -1,29 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { 
-  FaPaw, FaSignInAlt, FaUserPlus, 
-  FaFacebook, FaTwitter, FaInstagram, FaEnvelope, FaPhone,
-  FaSignOutAlt, FaBars, FaTimes, FaDog, FaCat, FaDove, FaPlus,
-  FaBook, FaChevronDown
-} from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import axios from './utils/axios';
+import { FaPaw, FaFacebook, FaTwitter, FaInstagram, FaEnvelope, FaPhone } from 'react-icons/fa';
 import './HomePage.css';
+import PetCard from './components/PetCard';
 
 const HomePage = () => {
-  const navigate = useNavigate();
   const [featuredPets, setFeaturedPets] = useState([]);
   const [recentAds, setRecentAds] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isPetMenuOpen, setIsPetMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,570 +19,121 @@ const HomePage = () => {
           axios.get('/api/pets/recent').catch(() => ({ data: [] }))
         ]);
         
-        // Component unmounted kontrolü
-        if (featuredResponse && recentResponse) {
-          setFeaturedPets(featuredResponse.data || []);
-          setRecentAds(recentResponse.data || []);
-        }
+        setFeaturedPets(featuredResponse.data || []);
+        setRecentAds(recentResponse.data || []);
+
       } catch (error) {
         console.error('Error fetching data:', error);
-        setFeaturedPets([]);
-        setRecentAds([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-
-    // Cleanup function
-    return () => {
-      // Component unmount olduğunda state güncellemelerini engelle
-    };
   }, []);
-
-  const handleSignOut = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    navigate('/');
-  };
 
   return (
     <div className="home-page">
-      {/* Header */}
-      <header className="bg-white shadow-sm fixed w-full top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
-              <FaPaw className="text-3xl text-[#4CAF50]" />
-              <span className="text-2xl font-bold text-[#4CAF50]">PetAdopt</span>
-            </Link>
+      {/* Hero Section */}
+      <section
+        className="hero-section text-white text-center flex flex-col justify-center items-center -m-8" // Use negative margin to fill the padding from Layout
+        style={{ backgroundImage: "url('/hero-pets.png')", minHeight: '50vh' }}
+      >
+        <div className="bg-black bg-opacity-50 p-10 rounded-lg">
+          <h1 className="text-5xl font-bold mb-4">Find Your New Best Friend</h1>
+          <p className="text-xl mb-8">Browse thousands of pets from shelters and rescues.</p>
+          <Link to="/search" className="bg-[#4CAF50] text-white font-bold py-3 px-8 rounded-full text-lg hover:bg-[#388E3C] transition-colors">
+            Start Your Search
+          </Link>
+        </div>
+      </section>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link to="/" className="text-gray-700 hover:text-[#4CAF50] font-medium">
-                Home
-              </Link>
-              
-              {/* Pets Dropdown */}
-              <div className="relative">
-                <button
-                  className="flex items-center text-gray-700 hover:text-[#4CAF50] font-medium"
-                  onMouseEnter={() => setIsPetMenuOpen(true)}
-                  onMouseLeave={() => setIsPetMenuOpen(false)}
-                >
-                  Pets <FaChevronDown className="ml-1" />
-                </button>
-                {isPetMenuOpen && (
-                  <div
-                    className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
-                    onMouseEnter={() => setIsPetMenuOpen(true)}
-                    onMouseLeave={() => setIsPetMenuOpen(false)}
-                  >
-                    <Link to="/search?type=dog" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                      <FaDog className="inline mr-2" /> Dogs
-                    </Link>
-                    <Link to="/search?type=cat" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                      <FaCat className="inline mr-2" /> Cats
-                    </Link>
-                    <Link to="/search?type=bird" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                      <FaDove className="inline mr-2" /> Birds
-                    </Link>
-                    <Link to="/search?type=other" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                      <FaPaw className="inline mr-2" /> Other Pets
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              <Link to="/pet-guide" className="text-gray-700 hover:text-[#4CAF50] font-medium">
-                <FaBook className="inline mr-1" /> Pet Guide
-              </Link>
-
-              {isAuthenticated && (
-                <>
-                  <Link to="/my-listings" className="text-gray-700 hover:text-[#4CAF50] font-medium">
-                    My Listings
-                  </Link>
-                  <Link to="/profile" className="text-gray-700 hover:text-[#4CAF50] font-medium">
-                    Profile
-                  </Link>
-                </>
-              )}
-              <Link to="/search" className="text-gray-700 hover:text-[#4CAF50] font-medium">
-                Search
-              </Link>
-            </nav>
-
-            {/* Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-4">
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    to="/add-pet"
-                    className="px-4 py-2 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C] transition-colors flex items-center gap-2"
-                  >
-                    <FaPlus /> Add Pet
-                  </Link>
-                  <Link
-                    to="/messages"
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
-                  >
-                    Mesajlar
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors flex items-center gap-2"
-                  >
-                    <FaSignOutAlt /> Sign Out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/signin"
-                    className="px-4 py-2 border border-[#4CAF50] text-[#4CAF50] rounded-md hover:bg-[#4CAF50] hover:text-white transition-colors flex items-center gap-2"
-                  >
-                    <FaSignInAlt /> Sign In
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="px-4 py-2 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C] transition-colors flex items-center gap-2"
-                  >
-                    <FaUserPlus /> Sign Up
-                  </Link>
-                </>
-              )}
+      {/* Featured Pets Section */}
+      <section className="py-16">
+        <div className="mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Featured Pets</h2>
+          {loading ? (
+            <div className="text-center">Loading...</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {featuredPets.map(pet => (
+                <PetCard key={pet._id} pet={pet} />
+              ))}
             </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2 rounded-md text-gray-700 hover:text-[#4CAF50]"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-            </button>
+          )}
+        </div>
+      </section>
+      
+      {/* How It Works Section */}
+      <section className="py-16 bg-white -mx-8 px-8">
+        <div className="mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">How It Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+            <div className="step">
+              <div className="text-5xl text-[#4CAF50] mb-4">1</div>
+              <h3 className="text-2xl font-semibold mb-2">Search</h3>
+              <p className="text-gray-600">Find your perfect companion by searching our database of pets.</p>
+            </div>
+            <div className="step">
+              <div className="text-5xl text-[#4CAF50] mb-4">2</div>
+              <h3 className="text-2xl font-semibold mb-2">Meet</h3>
+              <p className="text-gray-600">Arrange a meeting with the pet to see if it's a good match.</p>
+            </div>
+            <div className="step">
+              <div className="text-5xl text-[#4CAF50] mb-4">3</div>
+              <h3 className="text-2xl font-semibold mb-2">Adopt</h3>
+              <p className="text-gray-600">Complete the adoption process and bring your new friend home.</p>
+            </div>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link
-                to="/"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Home
-              </Link>
-              <Link
-                to="/search?type=dog"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <FaDog className="inline mr-2" /> Dogs
-              </Link>
-              <Link
-                to="/search?type=cat"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <FaCat className="inline mr-2" /> Cats
-              </Link>
-              <Link
-                to="/search?type=bird"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <FaDove className="inline mr-2" /> Birds
-              </Link>
-              <Link
-                to="/pet-guide"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <FaBook className="inline mr-2" /> Pet Guide
-              </Link>
-              {isAuthenticated && (
-                <>
-                  <Link
-                    to="/my-listings"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    My Listings
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Profile
-                  </Link>
-                  <Link
-                    to="/add-pet"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-[#4CAF50] hover:bg-gray-50"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <FaPlus className="inline mr-2" /> Add Pet
-                  </Link>
-                </>
-              )}
-              <Link
-                to="/search"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#4CAF50] hover:bg-gray-50"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Search
-              </Link>
-              {isAuthenticated ? (
-                <Link
-                  to="/messages"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-green-600 hover:bg-gray-50"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Mesajlar
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    to="/signin"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-[#4CAF50] hover:bg-gray-50"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-[#4CAF50] hover:bg-gray-50"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
+      </section>
+      
+      {/* Recent Ads Section */}
+      <section className="py-16">
+        <div className="mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Recently Added</h2>
+          {loading ? (
+            <div className="text-center">Loading...</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {recentAds.map(pet => (
+                <PetCard key={pet._id} pet={pet} />
+              ))}
             </div>
-          </div>
-        )}
-      </header>
-
-      <main className="pt-16">
-        {/* Quick Access Menu */}
-        <section className="bg-gray-50 py-4 border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/search?type=dog" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-                <FaDog className="text-[#4CAF50]" /> Dogs
-              </Link>
-              <Link to="/search?type=cat" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-                <FaCat className="text-[#4CAF50]" /> Cats
-              </Link>
-              <Link to="/search?type=bird" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-                <FaDove className="text-[#4CAF50]" /> Birds
-              </Link>
-              <Link to="/search?type=other" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-                <FaPaw className="text-[#4CAF50]" /> Other Pets
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Hero Section */}
-        <section className="hero relative">
-          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Find Your Perfect Companion
-            </h1>
-            <p className="text-xl text-white mb-8 max-w-2xl mx-auto">
-              Give a loving home to a pet in need. Browse our selection of adorable pets waiting for adoption.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/search"
-                className="px-8 py-3 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C] transition-colors text-lg font-medium"
-              >
-                Browse Pets
-              </Link>
-              <Link
-                to="/pet-guide"
-                className="px-8 py-3 bg-white text-[#4CAF50] rounded-md hover:bg-gray-100 transition-colors text-lg font-medium"
-              >
-                Pet Guide
-              </Link>
-            </div>
-            <div className="mt-8 flex justify-center gap-4">
-              <Link
-                to="/add-pet"
-                className="rounded-full bg-blue-600 px-8 py-4 text-lg font-bold text-white shadow-lg transition hover:bg-blue-700"
-              >
-                Evcil Hayvan İlanı Ver
-              </Link>
-              <Link
-                to="/messages"
-                className="rounded-full bg-green-600 px-8 py-4 text-lg font-bold text-white shadow-lg transition hover:bg-green-700"
-              >
-                Mesajlar
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Recent Ads Section */}
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">Recent Ads</h2>
-              <Link to="/search" className="text-[#4CAF50] hover:text-[#388E3C] font-medium">
-                View All
-              </Link>
-            </div>
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50] mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading recent ads...</p>
-              </div>
-            ) : recentAds && recentAds.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {recentAds.map((pet) => (
-                  <div key={pet.id || Math.random()} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                    <img
-                      src={pet.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDEyMCAxMTAuNDU3IDEyMCAxMDBDMTIwIDg5LjU0MjkgMTEwLjQ1NyA4MCAxMDAgODBDODkuNTQyOSA4MCA4MCA4OS41NDI5IDgwIDEwMEM4MCAxMTAuNDU3IDg5LjU0MjkgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOENBRjUwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDEyMCAxMzAuNDU3IDEyMCAxMjBDMTIwIDEwOS41NDMgMTEwLjQ1NyAxMDAgMTAwIDEwMEM4OS41NDI5IDEwMCA4MCAxMDkuNTQzIDgwIDEyMEM4MCAxMzAuNDU3IDg5LjU0MjkgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOENBRjUwIi8+Cjwvc3ZnPgo='}
-                      alt={pet.name || 'Pet'}
-                      className="w-full h-48 object-cover"
-                      onError={(e) => {
-                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDEyMCAxMTAuNDU3IDEyMCAxMDBDMTIwIDg5LjU0MjkgMTEwLjQ1NyA4MCAxMDAgODBDODkuNTQyOSA4MCA4MCA4OS41NDI5IDgwIDEwMEM4MCAxMTAuNDU3IDg5LjU0MjkgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOENBRjUwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDEyMCAxMzAuNDU3IDEyMCAxMjBDMTIwIDEwOS41NDMgMTEwLjQ1NyAxMDAgMTAwIDEwMEM4OS41NDI5IDEwMCA4MCAxMDkuNTQzIDgwIDEyMEM4MCAxMzAuNDU3IDg5LjU0MjkgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOENBRjUwIi8+Cjwvc3ZnPgo=';
-                      }}
-                    />
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">{pet.name || 'Unknown Pet'}</h3>
-                        {pet.type === 'dog' ? (
-                          <FaDog className="text-[#4CAF50] text-xl" />
-                        ) : (
-                          <FaCat className="text-[#4CAF50] text-xl" />
-                        )}
-                      </div>
-                      <p className="text-gray-600 text-sm mb-2">{pet.breed || 'Unknown'} • {pet.age || 'Unknown'} years old</p>
-                      <p className="text-gray-500 text-sm mb-4 line-clamp-2">{pet.description || 'No description available'}</p>
-                      <Link
-                        to={`/pets/${pet.id}`}
-                        className="block w-full px-4 py-2 bg-[#4CAF50] text-white text-center rounded-md hover:bg-[#388E3C] transition-colors text-sm"
-                      >
-                        View Details
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-600">No recent ads available.</p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Featured Listings Section */}
-        <section className="py-12 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">Featured Pets</h2>
-              <Link to="/search" className="text-[#4CAF50] hover:text-[#388E3C] font-medium">
-                View All
-              </Link>
-            </div>
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50] mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading featured pets...</p>
-              </div>
-            ) : featuredPets && featuredPets.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {featuredPets.map((pet) => (
-                  <div key={pet.id || Math.random()} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                    <img
-                      src={pet.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDEyMCAxMTAuNDU3IDEyMCAxMDBDMTIwIDg5LjU0MjkgMTEwLjQ1NyA4MCAxMDAgODBDODkuNTQyOSA4MCA4MCA4OS41NDI5IDgwIDEwMEM4MCAxMTAuNDU3IDg5LjU0MjkgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOENBRjUwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDEyMCAxMzAuNDU3IDEyMCAxMjBDMTIwIDEwOS41NDMgMTEwLjQ1NyAxMDAgMTAwIDEwMEM4OS41NDI5IDEwMCA4MCAxMDkuNTQzIDgwIDEyMEM4MCAxMzAuNDU3IDg5LjU0MjkgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOENBRjUwIi8+Cjwvc3ZnPgo='}
-                      alt={pet.name || 'Pet'}
-                      className="w-full h-64 object-cover"
-                      onError={(e) => {
-                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDEyMCAxMTAuNDU3IDEyMCAxMDBDMTIwIDg5LjU0MjkgMTEwLjQ1NyA4MCAxMDAgODBDODkuNTQyOSA4MCA4MCA4OS41NDI5IDgwIDEwMEM4MCAxMTAuNDU3IDg5LjU0MjkgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOENBRjUwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDEyMCAxMzAuNDU3IDEyMCAxMjBDMTIwIDEwOS41NDMgMTEwLjQ1NyAxMDAgMTAwIDEwMEM4OS41NDI5IDEwMCA4MCAxMDkuNTQzIDgwIDEyMEM4MCAxMzAuNDU3IDg5LjU0MjkgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOENBRjUwIi8+Cjwvc3ZnPgo=';
-                      }}
-                    />
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-semibold text-gray-900">{pet.name || 'Unknown Pet'}</h3>
-                        {pet.type === 'dog' ? (
-                          <FaDog className="text-[#4CAF50] text-xl" />
-                        ) : (
-                          <FaCat className="text-[#4CAF50] text-xl" />
-                        )}
-                      </div>
-                      <p className="text-gray-600 mb-2">{pet.breed || 'Unknown'} • {pet.age || 'Unknown'} years old</p>
-                      <p className="text-gray-500 text-sm mb-6">{pet.description || 'No description available'}</p>
-                      <Link
-                        to={`/pets/${pet.id}`}
-                        className="block w-full px-4 py-2 bg-[#4CAF50] text-white text-center rounded-md hover:bg-[#388E3C] transition-colors"
-                      >
-                        Learn More
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-600">No featured pets available.</p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Pet Guide Preview Section */}
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Pet Care Guide</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Link to="/pet-guide/choosing" className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Choosing the Right Pet</h3>
-                <p className="text-gray-600">Learn how to select the perfect pet for your lifestyle and home.</p>
-              </Link>
-              <Link to="/pet-guide/care" className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Pet Care Basics</h3>
-                <p className="text-gray-600">Essential tips for taking care of your new companion.</p>
-              </Link>
-              <Link to="/pet-guide/health" className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Health & Wellness</h3>
-                <p className="text-gray-600">Important health considerations for your pet's well-being.</p>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Categories Section */}
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
-              Find Your New Best Friend
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              <Link to="/search?type=dog" className="category-card">
-                <FaDog className="text-5xl text-white" />
-                <h3 className="text-xl font-semibold mt-4">Dogs</h3>
-              </Link>
-              <Link to="/search?type=cat" className="category-card">
-                <FaCat className="text-5xl text-white" />
-                <h3 className="text-xl font-semibold mt-4">Cats</h3>
-              </Link>
-              <Link to="/search?type=bird" className="category-card">
-                <FaDove className="text-5xl text-white" />
-                <h3 className="text-xl font-semibold mt-4">Birds</h3>
-              </Link>
-              <Link to="/search?type=other" className="category-card">
-                <FaPaw className="text-5xl text-white" />
-                <h3 className="text-xl font-semibold mt-4">Other Pets</h3>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Pets Section */}
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">Featured Pets</h2>
-              <Link to="/search" className="text-[#4CAF50] hover:text-[#388E3C] font-medium">
-                View All
-              </Link>
-            </div>
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50] mx-auto"></div>
-                <p className="mt-4 text-gray-600">Loading featured pets...</p>
-              </div>
-            ) : featuredPets && featuredPets.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {featuredPets.map((pet) => (
-                  <div key={pet.id || Math.random()} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                    <img
-                      src={pet.image || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDEyMCAxMTAuNDU3IDEyMCAxMDBDMTIwIDg5LjU0MjkgMTEwLjQ1NyA4MCAxMDAgODBDODkuNTQyOSA4MCA4MCA4OS41NDI5IDgwIDEwMEM4MCAxMTAuNDU3IDg5LjU0MjkgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOENBRjUwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDEyMCAxMzAuNDU3IDEyMCAxMjBDMTIwIDEwOS41NDMgMTEwLjQ1NyAxMDAgMTAwIDEwMEM4OS41NDI5IDEwMCA4MCAxMDkuNTQzIDgwIDEyMEM4MCAxMzAuNDU3IDg5LjU0MjkgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOENBRjUwIi8+Cjwvc3ZnPgo='}
-                      alt={pet.name || 'Pet'}
-                      className="w-full h-64 object-cover"
-                      onError={(e) => {
-                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgMTIwQzExMC40NTcgMTIwIDEyMCAxMTAuNDU3IDEyMCAxMDBDMTIwIDg5LjU0MjkgMTEwLjQ1NyA4MCAxMDAgODBDODkuNTQyOSA4MCA4MCA4OS41NDI5IDgwIDEwMEM4MCAxMTAuNDU3IDg5LjU0MjkgMTIwIDEwMCAxMjBaIiBmaWxsPSIjOENBRjUwIi8+CjxwYXRoIGQ9Ik0xMDAgMTQwQzExMC40NTcgMTQwIDEyMCAxMzAuNDU3IDEyMCAxMjBDMTIwIDEwOS41NDMgMTEwLjQ1NyAxMDAgMTAwIDEwMEM4OS41NDI5IDEwMCA4MCAxMDkuNTQzIDgwIDEyMEM4MCAxMzAuNDU3IDg5LjU0MjkgMTQwIDEwMCAxNDBaIiBmaWxsPSIjOENBRjUwIi8+Cjwvc3ZnPgo=';
-                      }}
-                    />
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-semibold text-gray-900">{pet.name || 'Unknown Pet'}</h3>
-                        {pet.type === 'dog' ? (
-                          <FaDog className="text-[#4CAF50] text-xl" />
-                        ) : (
-                          <FaCat className="text-[#4CAF50] text-xl" />
-                        )}
-                      </div>
-                      <p className="text-gray-600 mb-2">{pet.breed || 'Unknown'} • {pet.age || 'Unknown'} years old</p>
-                      <p className="text-gray-500 text-sm mb-6">{pet.description || 'No description available'}</p>
-                      <Link
-                        to={`/pets/${pet.id}`}
-                        className="block w-full px-4 py-2 bg-[#4CAF50] text-white text-center rounded-md hover:bg-[#388E3C] transition-colors"
-                      >
-                        Learn More
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-600">No featured pets available.</p>
-              </div>
-            )}
-          </div>
-        </section>
-      </main>
+          )}
+        </div>
+      </section>
 
       {/* Footer */}
-      <footer className="bg-[#388E3C] text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <footer className="bg-gray-800 text-white py-12 -m-8 mt-0 px-8">
+        <div className="mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h4 className="text-xl font-semibold mb-4">PetAdopt</h4>
-              <p className="mb-4">Making pet adoption easier and safer</p>
-              <div className="flex gap-4">
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-[#C8E6C9] transition-colors">
-                  <FaFacebook />
-                </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-[#C8E6C9] transition-colors">
-                  <FaTwitter />
-                </a>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-[#C8E6C9] transition-colors">
-                  <FaInstagram />
-                </a>
-              </div>
+              <h3 className="text-xl font-bold mb-4">PetAdopt</h3>
+              <p className="text-gray-400">Connecting pets with loving homes. We are dedicated to finding forever families for animals in need.</p>
             </div>
             <div>
-              <h4 className="text-xl font-semibold mb-4">Quick Links</h4>
-              <div className="flex flex-col gap-2">
-                <Link to="/about" className="hover:text-[#C8E6C9] transition-colors">About Us</Link>
-                <Link to="/contact" className="hover:text-[#C8E6C9] transition-colors">Contact</Link>
-                <Link to="/faq" className="hover:text-[#C8E6C9] transition-colors">FAQ</Link>
-                <Link to="/pet-guide" className="hover:text-[#C8E6C9] transition-colors">Pet Guide</Link>
-              </div>
+              <h3 className="text-xl font-bold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><Link to="/about" className="hover:text-[#4CAF50]">About Us</Link></li>
+                <li><Link to="/contact" className="hover:text-[#4CAF50]">Contact</Link></li>
+                <li><Link to="/faq" className="hover:text-[#4CAF50]">FAQ</Link></li>
+              </ul>
             </div>
             <div>
-              <h4 className="text-xl font-semibold mb-4">Contact</h4>
-              <p className="flex items-center gap-2 mb-2">
-                <FaEnvelope /> info@petadopt.com
-              </p>
-              <p className="flex items-center gap-2">
-                <FaPhone /> +1 (555) 123-4567
-              </p>
+              <h3 className="text-xl font-bold mb-4">Contact Info</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li className="flex items-center"><FaEnvelope className="mr-2"/> contact@petadopt.com</li>
+                <li className="flex items-center"><FaPhone className="mr-2"/> +1 (123) 456-7890</li>
+              </ul>
+              <div className="flex space-x-4 mt-4">
+                <a href="#!" className="hover:text-[#4CAF50]"><FaFacebook size={24}/></a>
+                <a href="#!" className="hover:text-[#4CAF50]"><FaTwitter size={24}/></a>
+                <a href="#!" className="hover:text-[#4CAF50]"><FaInstagram size={24}/></a>
+              </div>
             </div>
           </div>
-          <div className="text-center mt-12 pt-8 border-t border-white/10">
+          <div className="mt-8 border-t border-gray-700 pt-6 text-center text-gray-500">
             <p>&copy; 2024 PetAdopt. All rights reserved.</p>
           </div>
         </div>
