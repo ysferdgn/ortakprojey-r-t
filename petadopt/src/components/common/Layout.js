@@ -34,10 +34,10 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
       ];
 
   return (
-    <div className={`fixed top-0 left-0 h-full bg-gray-800 text-white transition-all duration-300 ease-in-out z-50 ${isExpanded ? 'w-64' : 'w-20'}`}>
-      <div className="flex items-center justify-between p-4 h-16 border-b border-gray-700">
+    <div className={`fixed top-0 left-0 h-full bg-green-700 text-white transition-all duration-300 ease-in-out z-50 ${isExpanded ? 'w-64' : 'w-20'}`}>
+      <div className="flex items-center justify-between p-4 h-16 border-b border-green-600">
         {isExpanded && <span className="text-2xl font-bold">PetAdopt</span>}
-        <button onClick={toggleSidebar} className="p-2 rounded-md hover:bg-gray-700">
+        <button onClick={toggleSidebar} className="p-2 rounded-md hover:bg-green-600">
             {isExpanded ? <FaTimes /> : <FaBars />}
         </button>
       </div>
@@ -45,7 +45,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
         <ul>
           {navItems.map((item, index) => (
             <li key={index} className="px-4 py-2">
-              <Link to={item.path} className="flex items-center p-2 rounded-md hover:bg-gray-700">
+              <Link to={item.path} className="flex items-center p-2 rounded-md hover:bg-green-600">
                 <div className="w-12 flex justify-center">{item.icon}</div>
                 {isExpanded && <span className="ml-4">{item.text}</span>}
               </Link>
@@ -53,7 +53,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
           ))}
           {user && (
              <li className="px-4 py-2 absolute bottom-4 w-full">
-               <button onClick={handleLogout} className="flex items-center p-2 w-full rounded-md hover:bg-red-500">
+               <button onClick={handleLogout} className="flex items-center p-2 w-full rounded-md hover:bg-green-600">
                 <div className="w-12 flex justify-center"><FaSignOutAlt /></div>
                 {isExpanded && <span className="ml-4">Çıkış Yap</span>}
                </button>

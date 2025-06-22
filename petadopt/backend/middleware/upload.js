@@ -14,7 +14,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'petadopt',
     allowed_formats: ['jpg', 'jpeg', 'png', 'gif'],
-    transformation: [{ width: 800, height: 800, crop: 'limit' }],
+    transformation: [{ width: 800, height: 800, crop: 'fill' }],
   },
 });
 
