@@ -1,171 +1,164 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaHeart, FaHome, FaUserMd, FaArrowLeft } from 'react-icons/fa';
+import React, { useState, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  FaStethoscope, FaBone, FaCat, FaDog, FaGraduationCap, FaCut, FaSearch, FaArrowRight, FaFeather
+} from 'react-icons/fa';
+
+// Guide data
+const guides = [
+  {
+    category: 'Genel Bakım',
+    title: 'İlk Kez Evcil Hayvan Sahiplenecekler İçin Rehber',
+    description: 'Yeni dostunuzla hayatınıza harika bir başlangıç yapmak için bilmeniz gereken her şey.',
+    path: '/first-time-owner-guide',
+    icon: <FaDog className="text-white" />,
+    bgColor: 'bg-blue-500'
+  },
+  {
+    category: 'Sağlık',
+    title: 'Evcil Hayvan Sağlığı ve Hastalıklar',
+    description: 'Sık görülen hastalıklar, önleyici bakım ve acil durum ipuçları.',
+    path: '/health-guide',
+    icon: <FaStethoscope className="text-white" />,
+    bgColor: 'bg-red-500'
+  },
+  {
+    category: 'Beslenme',
+    title: 'Evcil Hayvan Beslenme Rehberi',
+    description: 'Dostunuzun yaşına, cinsine ve sağlık durumuna en uygun beslenme programını oluşturun.',
+    path: '/pet-nutrition-guide',
+    icon: <FaBone className="text-white" />,
+    bgColor: 'bg-yellow-500'
+  },
+  {
+    category: 'Eğitim',
+    title: 'Temel Eğitim Teknikleri',
+    description: 'Pozitif pekiştirme ile tuvalet, itaat ve sosyalleşme eğitimleri.',
+    path: '/training-guide',
+    icon: <FaGraduationCap className="text-white" />,
+    bgColor: 'bg-green-500'
+  },
+  {
+    category: 'Bakım',
+    title: 'Tüy ve Vücut Bakımı',
+    description: 'Tüy dökülmesi, tırnak kesimi ve banyo rutinleri hakkında pratik bilgiler.',
+    path: '/grooming-guide',
+    icon: <FaCut className="text-white" />,
+    bgColor: 'bg-purple-500'
+  },
+  {
+    category: 'Türlere Özel',
+    title: 'Kedi Irkları Rehberi',
+    description: 'Farklı kedi ırklarının karakter özellikleri, bakım ihtiyaçları ve mizaçları.',
+    path: '/cat-breed-guide',
+    icon: <FaCat className="text-white" />,
+    bgColor: 'bg-pink-500'
+  },
+  {
+    category: 'Türlere Özel',
+    title: 'Köpek Irkları Rehberi',
+    description: 'Enerji seviyelerinden apartman yaşamına uygunluğuna kadar köpek ırkları.',
+    path: '/dog-breed-guide',
+    icon: <FaDog className="text-white" />,
+    bgColor: 'bg-indigo-500'
+  },
+  {
+    category: 'Türlere Özel',
+    title: 'Kuş Irkları Rehberi',
+    description: 'Papağanlardan kanaryalara, farklı kuş türlerinin özellikleri ve bakım ihtiyaçları.',
+    path: '/bird-breed-guide',
+    icon: <FaFeather className="text-white" />,
+    bgColor: 'bg-teal-500'
+  },
+];
+
 
 const PetGuide = () => {
-  const guideCategories = [
-    {
-      id: 'choosing',
-      title: 'Choosing the Right Pet',
-      icon: <FaHeart className="text-3xl text-[#4CAF50] mb-4" />,
-      description: 'Learn how to select the perfect pet for your lifestyle and home.',
-      articles: [
-        {
-          id: 'choosing-dog',
-          title: 'How to Choose the Right Dog Breed',
-          excerpt: 'Find the perfect dog breed that matches your lifestyle and living situation.'
-        },
-        {
-          id: 'choosing-cat',
-          title: 'Selecting the Perfect Cat',
-          excerpt: 'Understanding different cat personalities and finding your ideal match.'
-        },
-        {
-          id: 'first-time-owner',
-          title: 'First-Time Pet Owner Guide',
-          excerpt: 'Essential tips for those considering their first pet adoption.'
-        }
-      ]
-    },
-    {
-      id: 'care',
-      title: 'Pet Care Basics',
-      icon: <FaHome className="text-3xl text-[#4CAF50] mb-4" />,
-      description: 'Essential tips for taking care of your new companion.',
-      articles: [
-        {
-          id: 'feeding-guide',
-          title: 'Proper Pet Nutrition',
-          excerpt: 'Understanding your pet\'s dietary needs and feeding schedule.'
-        },
-        {
-          id: 'grooming',
-          title: 'Grooming Essentials',
-          excerpt: 'Basic grooming tips for keeping your pet clean and healthy.'
-        },
-        {
-          id: 'training',
-          title: 'Basic Training Tips',
-          excerpt: 'Simple training techniques for well-behaved pets.'
-        }
-      ]
-    },
-    {
-      id: 'health',
-      title: 'Health & Wellness',
-      icon: <FaUserMd className="text-3xl text-[#4CAF50] mb-4" />,
-      description: 'Important health considerations for your pet\'s well-being.',
-      articles: [
-        {
-          id: 'vaccinations',
-          title: 'Vaccination Schedule',
-          excerpt: 'Essential vaccinations and when your pet needs them.'
-        },
-        {
-          id: 'common-illnesses',
-          title: 'Common Pet Illnesses',
-          excerpt: 'Recognizing signs of common pet health issues.'
-        },
-        {
-          id: 'emergency-care',
-          title: 'Emergency Care Guide',
-          excerpt: 'What to do in case of pet emergencies.'
-        }
-      ]
-    }
-  ];
+    const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate();
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative">
-      <Link 
-        to="/" 
-        className="absolute top-4 left-4 z-20 flex items-center gap-2 px-4 py-2 bg-white/80 rounded-full shadow-md hover:bg-white transition-all duration-200"
-      >
-        <FaArrowLeft className="text-[#4CAF50]" />
-        <span className="text-gray-700 font-semibold">Geri Dön</span>
-      </Link>
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Pet Care Guide</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Everything you need to know about pet care, adoption, and creating a happy home for your new companion.
-        </p>
-      </div>
+    const filteredGuides = useMemo(() => 
+        guides.filter(guide => 
+            guide.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            guide.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            guide.category.toLowerCase().includes(searchTerm.toLowerCase())
+        ),
+        [searchTerm]
+    );
 
-      {/* Quick Navigation */}
-      <div className="flex flex-wrap justify-center gap-4 mb-12">
-        <Link to="/pet-guide#choosing" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-          <FaHeart className="text-[#4CAF50]" /> Choosing a Pet
-        </Link>
-        <Link to="/pet-guide#care" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-          <FaHome className="text-[#4CAF50]" /> Care Basics
-        </Link>
-        <Link to="/pet-guide#health" className="flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-          <FaUserMd className="text-[#4CAF50]" /> Health & Wellness
-        </Link>
-      </div>
+    const handleSearch = (e) => {
+        e.preventDefault();
+        // The list updates automatically, but you could navigate to a search results page
+        // For now, filtering the current view is enough.
+        console.log('Searching for:', searchTerm);
+    };
 
-      {/* Guide Categories */}
-      <div className="space-y-16">
-        {guideCategories.map((category) => (
-          <section key={category.id} id={category.id} className="scroll-mt-20">
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <div className="flex items-center gap-4 mb-6">
-                {category.icon}
-                <h2 className="text-2xl font-bold text-gray-900">{category.title}</h2>
-              </div>
-              <p className="text-gray-600 mb-8">{category.description}</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {category.articles.map((article) => (
-                  <Link
-                    key={article.id}
-                    to={
-                      article.id === 'choosing-dog' ? '/dog-breed-guide' :
-                      article.id === 'choosing-cat' ? '/cat-breed-guide' :
-                      article.id === 'first-time-owner' ? '/first-time-owner-guide' :
-                      article.id === 'feeding-guide' ? '/pet-nutrition-guide' :
-                      article.id === 'grooming' ? '/grooming-guide' :
-                      article.id === 'training' ? '/training-guide' :
-                      article.id === 'vaccinations' ? '/health-guide#vaccinations' :
-                      article.id === 'common-illnesses' ? '/health-guide#illnesses' :
-                      article.id === 'emergency-care' ? '/health-guide#emergency' :
-                      `/pet-guide/${article.id}`
-                    }
-                    className="block p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{article.title}</h3>
-                    <p className="text-gray-600">{article.excerpt}</p>
-                  </Link>
-                ))}
-              </div>
+    return (
+        <div className="bg-gray-50 min-h-screen">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                
+                {/* Header Section */}
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                        Pet Bakım Rehberi
+                    </h1>
+                    <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                        Yeni bir dost edinmekten, onun sağlıklı ve mutlu bir yaşam sürmesini sağlamaya kadar her konuda yanınızdayız.
+                    </p>
+                </div>
+
+                {/* Search Bar */}
+                <div className="mb-12 max-w-2xl mx-auto">
+                    <form onSubmit={handleSearch} className="relative">
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Rehberde ara (örn: beslenme, kedi bakımı)"
+                            className="w-full px-6 py-4 pr-16 rounded-full shadow-md border-2 border-transparent focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                        />
+                        <button type="submit" className="absolute h-12 w-12 top-1/2 right-2 -translate-y-1/2 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-700 transition">
+                            <FaSearch />
+                        </button>
+                    </form>
+                </div>
+
+                {/* Guide Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {filteredGuides.map((guide) => (
+                        <div 
+                            key={guide.path} 
+                            className="bg-white rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 cursor-pointer group"
+                            onClick={() => navigate(guide.path)}
+                        >
+                            <div className={`p-6 ${guide.bgColor} flex items-center justify-center h-32`}>
+                                <div className="text-5xl opacity-80 group-hover:opacity-100 transition-opacity">
+                                    {guide.icon}
+                                </div>
+                            </div>
+                            <div className="p-6">
+                                <p className="text-sm font-semibold text-green-600 mb-1">{guide.category}</p>
+                                <h3 className="text-xl font-bold text-gray-900 mb-3">{guide.title}</h3>
+                                <p className="text-gray-600 text-sm mb-4 h-16">{guide.description}</p>
+                                <div className="flex justify-end">
+                                     <span className="flex items-center text-green-600 font-semibold group-hover:underline">
+                                        Devamını Oku
+                                        <FaArrowRight className="ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+                                     </span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {filteredGuides.length === 0 && (
+                    <div className="text-center py-16">
+                        <p className="text-gray-500">Aradığınız kriterlere uygun bir rehber bulunamadı.</p>
+                    </div>
+                )}
             </div>
-          </section>
-        ))}
-      </div>
-
-      {/* Additional Resources */}
-      <section className="mt-16">
-        <div className="bg-[#4CAF50] text-white rounded-lg p-8">
-          <h2 className="text-2xl font-bold mb-4">Need More Help?</h2>
-          <p className="mb-6">Our team of pet care experts is here to help you with any questions about pet adoption and care.</p>
-          <div className="flex flex-wrap gap-4">
-            <Link
-              to="/contact"
-              className="px-6 py-3 bg-white text-[#4CAF50] rounded-md hover:bg-gray-100 transition-colors"
-            >
-              Contact Us
-            </Link>
-            <Link
-              to="/faq"
-              className="px-6 py-3 border border-white text-white rounded-md hover:bg-white/10 transition-colors"
-            >
-              View FAQ
-            </Link>
-          </div>
         </div>
-      </section>
-    </div>
-  );
+    );
 };
 
 export default PetGuide; 
