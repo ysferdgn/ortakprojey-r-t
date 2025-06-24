@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -6,10 +6,35 @@ import {
   FaSignInAlt, FaUserPlus, FaListAlt, FaPlusCircle, FaBookOpen, FaSearch, FaEnvelope
 } from 'react-icons/fa';
 import Header from './Header';
+import AIChatWidget from '../AIChatWidget';
 
 const Sidebar = ({ isExpanded, toggleSidebar }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchUnread = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('http://localhost:5000/api/conversations', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        // lastMessage.read === false && lastMessage.sender !== user.id
+        const unread = data.some(convo =>
+          convo.lastMessage &&
+          convo.lastMessage.read === false &&
+          convo.lastMessage.sender !== user.id
+        );
+        setHasUnread(unread);
+      } catch (e) {
+        setHasUnread(false);
+      }
+    };
+    fetchUnread();
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -20,7 +45,14 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
     ? [
         { icon: <FaHome />, text: 'Ana Sayfa', path: '/' },
         { icon: <FaSearch />, text: 'Hayvan Ara', path: '/search' },
-        { icon: <FaEnvelope />, text: 'Mesajlar', path: '/messages' },
+        { icon: (
+            <span className="relative">
+              <FaEnvelope />
+              {hasUnread && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
+              )}
+            </span>
+          ), text: 'Mesajlar', path: '/messages' },
         { icon: <FaListAlt />, text: 'İlanlarım', path: '/my-listings' },
         { icon: <FaPlusCircle />, text: 'İlan Ekle', path: '/add-pet' },
         { icon: <FaUser />, text: 'Profil', path: '/profile' },
@@ -76,6 +108,7 @@ const Layout = ({ children }) => {
   return (
     <div className="relative min-h-screen bg-gray-50">
       <Sidebar isExpanded={isSidebarExpanded} toggleSidebar={toggleSidebar} />
+      <AIChatWidget />
       <div className={`transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20'}`}>
         <Header />
         <main>
