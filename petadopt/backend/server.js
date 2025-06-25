@@ -8,6 +8,7 @@ const http = require('http');
 const { Server } = require("socket.io");
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
+const aiChatRoutes = require('./routes/aiChat');
 
 // Create Express app
 const app = express();
@@ -67,6 +68,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/pets', require('./routes/pets'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/conversations', require('./routes/conversations'));
+app.use('/api/ai-chat', aiChatRoutes);
 
 console.log('📡 API Routes loaded successfully');
 
