@@ -19,7 +19,7 @@ const PetCard = ({ pet }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 h-full flex flex-col">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 h-full flex flex-col">
       <div className="flex-grow">
         <Link to={`/pets/${pet._id}`} className="block">
           <div className="relative h-48">
@@ -30,22 +30,22 @@ const PetCard = ({ pet }) => {
             />
             <div className="absolute top-2 right-2">
               <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                pet.status === 'available' ? 'bg-green-100 text-green-800' :
-                pet.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-gray-100 text-gray-800'
+                pet.status === 'available' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                pet.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
               }`}>
                 {pet.status.charAt(0).toUpperCase() + pet.status.slice(1)}
               </span>
             </div>
           </div>
           <div className="p-4">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">{pet.name}</h3>
-            <div className="flex items-center text-gray-600 mb-2">
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">{pet.name}</h3>
+            <div className="flex items-center text-gray-600 dark:text-gray-400 mb-2">
               <span className="mr-2">{pet.breed}</span>
               <span className="mx-2">•</span>
               <span>{pet.age} years old</span>
             </div>
-            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{pet.description}</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">{pet.description}</p>
           </div>
         </Link>
       </div>

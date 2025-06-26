@@ -23,6 +23,33 @@ body {
   justify-content: center;
   text-align: center;
   position: relative;
+  /* dark mode */
+}
+
+.hero, .features, .featured-listings {
+  transition: background 0.3s, color 0.3s;
+}
+
+.hero {
+  color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #18181b;
+    color: #e5e7eb;
+  }
+}
+
+/* Tailwind dark classes for main containers */
+.hero {
+  /* ... */
+}
+.features {
+  background-color: #f9f9f9;
+}
+.features, .featured-listings, .feature-card, .pet-card {
+  /* Tailwind dark classes ile uyumlu olması için React tarafında className'e dark:bg ve dark:text eklenmeli */
 }
 
 /* Animations */

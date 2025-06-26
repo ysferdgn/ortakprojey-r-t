@@ -22,6 +22,13 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  transition: background 0.3s, color 0.3s;
+}
+@media (prefers-color-scheme: dark) {
+  .App-header {
+    background-color: #18181b;
+    color: #e5e7eb;
+  }
 }
 
 .App-link {

@@ -106,13 +106,13 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gray-50">
+    <div className="relative min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <Sidebar isExpanded={isSidebarExpanded} toggleSidebar={toggleSidebar} />
       <AIChatWidget />
       <div className={`transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20'}`}>
         <Header />
         <main>
-            <div className="p-8">
+            <div className="p-8 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors">
                 {children}
             </div>
         </main>

@@ -61,28 +61,28 @@ const MyListings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your listings...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading your listings...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
       <div className="max-w-7xl mx-auto px-4">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 mb-6 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+          className="flex items-center gap-2 mb-6 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"
           title="Ana Sayfa"
         >
           <FaHome className="text-lg" />
           Ana Sayfa
         </button>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">My Pet Listings</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Pet Listings</h1>
           <Link
             to="/add-pet"
             className="px-4 py-2 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C] flex items-center gap-2"
@@ -93,16 +93,16 @@ const MyListings = () => {
         </div>
 
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+          <div className="mb-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 text-red-600 dark:text-red-300 px-4 py-3 rounded">
             {error}
           </div>
         )}
 
         {listings.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-            <FaPaw className="text-4xl text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Listings Yet</h3>
-            <p className="text-gray-600 mb-4">Start by adding your first pet listing</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 text-center">
+            <FaPaw className="text-4xl text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Listings Yet</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">Start by adding your first pet listing</p>
             <Link
               to="/add-pet"
               className="px-4 py-2 bg-[#4CAF50] text-white rounded-md hover:bg-[#388E3C] flex items-center gap-2 mx-auto inline-flex"
@@ -114,7 +114,7 @@ const MyListings = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
-              <div key={listing._id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div key={listing._id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
                 <div className="relative">
                   <img
                     src={listing.images && listing.images.length > 0 ? listing.images[0] : '/placeholder-pet.jpg'}
@@ -131,8 +131,8 @@ const MyListings = () => {
                 <div className="p-4">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900">{listing.name}</h3>
-                      <p className="text-gray-600">{listing.breed} • {listing.age} years old</p>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{listing.name}</h3>
+                      <p className="text-gray-600 dark:text-gray-400">{listing.breed} • {listing.age} years old</p>
                     </div>
                     <div className="flex gap-2">
                       <Link
@@ -151,10 +151,10 @@ const MyListings = () => {
                       </button>
                     </div>
                   </div>
-                  <p className="text-gray-500 text-sm mb-4 line-clamp-2">{listing.description}</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2">{listing.description}</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">
-                      Status: <span className={listing.status === 'available' ? 'text-green-600' : 'text-gray-600'}>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Status: <span className={listing.status === 'available' ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-300'}>
                         {listing.status.charAt(0).toUpperCase() + listing.status.slice(1)}
                       </span>
                     </span>
